@@ -315,7 +315,7 @@ def main():
     # Uncomment and configure when ready to use:
 
     sheets_handler = GoogleSheetsHandler(
-        credentials_file='/auth/google-service-account-credentials.json',
+        credentials_file='auth/google-service-account-credentials.json',
         sheet_url='https://docs.google.com/spreadsheets/d/1GRT_hiUgzu68mKJuCLa5U98333ZCi30fJgu9SnNI87k/edit'
     )
     """
@@ -324,7 +324,7 @@ def main():
         sheet_url='your-google-sheet-url'
     )
     """
-    
+
     baseline_df = sheets_handler.read_baseline()
     comparison = PriceComparator.compare(current_prices, baseline_df)
     report = PriceComparator.generate_report(comparison)
