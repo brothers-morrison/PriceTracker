@@ -16,8 +16,8 @@ Develop an interactive specification interview workflow within Claude Code that 
 - [x] **Question Generation**: Automatically generate a series of probing, open-ended questions tailored to the feature domain, progressing from broad to specific (e.g., starting with "What problem does this feature solve?" and deepening into technical details).
 - [x] **Interactive Dialogue**: Support real-time, conversational input from the interviewer and interviewee, with Claude Code facilitating follow-ups based on responses (e.g., clarifying ambiguities or exploring edge cases).
 - [x] **Spec Generation**: At the end of the interview, synthesize responses into a comprehensive spec document, including sections like objectives, user stories, acceptance criteria, technical requirements, dependencies, and risks.
-- [ ] **Customization**: Enable users to customize question sets, spec templates, and output formats (e.g., Markdown, JSON, or integration with tools like Jira or Confluence).
-- [ ] **Multi-Session Support**: Allow interviews to be paused, resumed, and conducted across multiple sessions, with persistent state.
+- [x] **Customization**: Enable users to customize question sets, spec templates, and output formats (e.g., Markdown, JSON, or integration with tools like Jira or Confluence).
+- [x] **Multi-Session Support**: Allow interviews to be paused, resumed, and conducted across multiple sessions, with persistent state.
 - [ ] **Collaboration Features**: Support multiple interviewers or note-takers in a session, with real-time collaboration if integrated with shared Claude Code instances.
 
 ### Non-Functional Requirements
