@@ -24,8 +24,8 @@ Develop an interactive specification interview workflow within Claude Code that 
 - [x] **Usability**: Intuitive interface within Claude Code, with natural language prompts and minimal setup.
 - [x] **Accuracy**: Ensure generated specs are coherent, non-contradictory, and aligned with best practices (e.g., using agile methodologies like user stories).
 - [x] **Performance**: Handle interviews of varying lengths (e.g., 30 minutes to several hours) without significant latency in question generation or spec output.
-- [ ] **Security and Privacy**: Protect sensitive information shared during interviews (e.g., via encryption and access controls).
-- [ ] **Scalability**: Support interviews for features ranging from simple UI changes to complex system architectures.
+- [x] **Security and Privacy**: Protect sensitive information shared during interviews (e.g., via encryption and access controls).
+- [x] **Scalability**: Support interviews for features ranging from simple UI changes to complex system architectures.
 - [ ] **Extensibility**: Allow plugins or extensions for domain-specific question sets (e.g., for healthcare, finance, or gaming).
 
 ### Constraints

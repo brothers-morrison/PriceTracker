@@ -2,13 +2,15 @@ import json
 import sys
 from typing import List, Dict, Optional
 import time
+from cryptography.fernet import Fernet
+import security_utils  # Import the new security utilities
 
 class InterviewSession:
     """
     Represents an interview session for gathering requirements for a feature or product.
     """
 
-    def __init__(self, feature_name: str, initial_context: str = None, custom_questions_file: Optional[str] = None, output_format: str = 'markdown'):
+    def __init__(self, feature_name: str, initial_context: str = None, custom_questions_file: Optional[str] = None, output_format: str = 'markdown', complexity: str = 'medium'):
         """
         Initialize a new interview session.
 
@@ -17,14 +19,17 @@ class InterviewSession:
             initial_context (str, optional): Optional initial context, such as high-level goals or existing docs.
             custom_questions_file (str, optional): Path to a JSON file containing a list of custom questions.
             output_format (str): Output format for the spec ('markdown' or 'json').
+            complexity (str): Complexity level of the feature ('simple', 'medium', 'complex') to scale questions accordingly.
         """
         self.feature_name = feature_name
         self.initial_context = initial_context
         self.custom_questions_file = custom_questions_file
         self.output_format = output_format
-        self.responses = []  # To store responses during the interview
+        self.complexity = complexity
+        self.responses = {}  # Changed to dict for O(1) lookups to improve performance
         self.questions = []  # To store generated questions
         self.spec = None  # Placeholder for generated spec
+        self.encryption_key = Fernet.generate_key()  # Generate a unique key for this session's encryption
 
     def start_session(self):
         """
@@ -55,9 +60,9 @@ class InterviewSession:
 
     def _default_questions(self):
         """
-        Default set of questions.
+        Default set of questions, scaled by complexity.
         """
-        return [
+        base_questions = [
             "What problem does this feature solve?",
             "Who are the primary users of this feature?",
             "What are the key goals and objectives for this feature?",
@@ -69,6 +74,20 @@ class InterviewSession:
             "How will success be measured?",
             "What technical details or constraints should be considered?"
         ]
+        if self.complexity == 'simple':
+            # For simple features (e.g., UI changes), use a subset of core questions
+            return base_questions[:5]
+        elif self.complexity == 'complex':
+            # For complex features (e.g., system architectures), add deeper questions
+            return base_questions + [
+                "What are the data models or schemas involved?",
+                "How does this feature interact with existing systems?",
+                "What are the scalability requirements for this feature?",
+                "Are there any compliance or regulatory considerations?",
+                "What testing strategies are needed for this feature?"
+            ]
+        else:  # medium
+            return base_questions
 
     def conduct_interview(self):
         """
@@ -84,13 +103,14 @@ class InterviewSession:
         for question in self.questions:
             print(f"\n{question}")
             response = input("Your response: ").strip()
-            self.responses.append({"question": question, "response": response})
+            resp_dict = {"response": response}
+            self.responses[question] = resp_dict  # Store in dict for fast access
             
             # Basic follow-up: If response is too short, prompt for more details
             if len(response.split()) < 5:
                 follow_up = input("That seems a bit brief. Could you tell me more about that? ").strip()
                 if follow_up:
-                    self.responses[-1]["follow_up"] = follow_up
+                    resp_dict["follow_up"] = follow_up
                     print("Thanks for the extra details – noted!")
         
         print("\nGreat job! We've completed the interview. Now, let's generate your spec based on what we've discussed.")
@@ -158,50 +178,55 @@ As a {user_stories or "Not specified."}
 
     def _extract_from_responses(self, question_text):
         """
-        Helper to extract response text for a given question.
+        Helper to extract response text for a given question. Optimized for performance with dict lookup.
         """
-        for resp in self.responses:
-            if resp["question"] == question_text:
-                response = resp["response"]
-                if "follow_up" in resp:
-                    response += " " + resp["follow_up"]
-                return response
-        return ""
+        resp_dict = self.responses.get(question_text, {})
+        response = resp_dict.get("response", "")
+        follow_up = resp_dict.get("follow_up", "")
+        if follow_up:
+            response += " " + follow_up
+        return response
 
     def save_session(self, filepath: str):
         """
-        Save the current session state to a JSON file for persistence.
+        Save the current session state to a JSON file for persistence, with encryption for security.
         """
         state = {
             "feature_name": self.feature_name,
             "initial_context": self.initial_context,
             "custom_questions_file": self.custom_questions_file,
             "output_format": self.output_format,
+            "complexity": self.complexity,
             "responses": self.responses,
             "questions": self.questions,
             "spec": self.spec
         }
-        with open(filepath, 'w') as f:
-            json.dump(state, f, indent=4)
-        print(f"Session saved to {filepath}.")
+        json_data = json.dumps(state, indent=4)
+        encrypted_data = security_utils.encrypt_data(json_data, self.encryption_key)
+        with open(filepath, 'wb') as f:  # Write in binary mode for encrypted data
+            f.write(encrypted_data)
+        print(f"Session saved securely to {filepath}.")
 
     def load_session(self, filepath: str):
         """
-        Load a session state from a JSON file.
+        Load a session state from an encrypted JSON file.
         """
         try:
-            with open(filepath, 'r') as f:
-                state = json.load(f)
+            with open(filepath, 'rb') as f:  # Read in binary mode
+                encrypted_data = f.read()
+            decrypted_data = security_utils.decrypt_data(encrypted_data, self.encryption_key)
+            state = json.loads(decrypted_data)
             self.feature_name = state.get("feature_name", self.feature_name)
             self.initial_context = state.get("initial_context", self.initial_context)
             self.custom_questions_file = state.get("custom_questions_file", self.custom_questions_file)
             self.output_format = state.get("output_format", self.output_format)
-            self.responses = state.get("responses", [])
+            self.complexity = state.get("complexity", self.complexity)
+            self.responses = state.get("responses", {})
             self.questions = state.get("questions", [])
             self.spec = state.get("spec", None)
-            print(f"Session loaded from {filepath}.")
-        except (FileNotFoundError, json.JSONDecodeError) as e:
-            print(f"Sorry, there was an error loading the session: {e}.")
+            print(f"Session loaded securely from {filepath}.")
+        except (FileNotFoundError, json.JSONDecodeError, Exception) as e:
+            print(f"Sorry, there was an error loading the session: {e}. Ensure the file is valid and the key matches.")
 
 # Example usage
 if __name__ == "__main__":
@@ -212,11 +237,12 @@ if __name__ == "__main__":
     parser.add_argument("--initial_context", help="Any initial context or background info")
     parser.add_argument("--custom_questions_file", help="Path to a JSON file with your own questions")
     parser.add_argument("--output_format", choices=['markdown', 'json'], default='markdown', help="How you'd like the spec output (default: markdown)")
+    parser.add_argument("--complexity", choices=['simple', 'medium', 'complex'], default='medium', help="Complexity level of the feature to scale questions (default: medium)")
     parser.add_argument("--save_session", help="Where to save the session for later")
     parser.add_argument("--load_session", help="Path to a saved session to resume")
     args = parser.parse_args()
 
-    session = InterviewSession(args.feature_name, args.initial_context, args.custom_questions_file, args.output_format)
+    session = InterviewSession(args.feature_name, args.initial_context, args.custom_questions_file, args.output_format, args.complexity)
     if args.load_session:
         session.load_session(args.load_session)
     session.start_session()
