@@ -45,6 +45,82 @@ class InterviewSession:
         ]
         return self.questions
 
+    def conduct_interview(self):
+        """
+        Conduct the interactive dialogue by iterating through questions, collecting responses,
+        and facilitating basic follow-ups (e.g., clarifying vague answers).
+        """
+        if not self.questions:
+            self.generate_questions()
+        
+        for question in self.questions:
+            print(f"\nQuestion: {question}")
+            response = input("Response: ").strip()
+            self.responses.append({"question": question, "response": response})
+            
+            # Basic follow-up: If response is too short, prompt for more details
+            if len(response.split()) < 5:
+                follow_up = input("That seems brief. Can you elaborate? ").strip()
+                if follow_up:
+                    self.responses[-1]["follow_up"] = follow_up
+                    print("Follow-up noted.")
+        
+        print("\nInterview completed. Responses collected.")
+
+    def generate_spec(self):
+        """
+        Synthesize responses into a comprehensive spec document.
+        Includes sections: objectives, user stories, acceptance criteria, technical requirements, dependencies, and risks.
+        """
+        if not self.responses:
+            print("No responses available. Please conduct the interview first.")
+            return None
+        
+        # Extract key info from responses (basic mapping; can be enhanced with NLP later)
+        objectives = self._extract_from_responses("What are the key goals and objectives for this feature?")
+        user_stories = self._extract_from_responses("Who are the primary users of this feature?") + " " + self._extract_from_responses("Can you describe the expected workflow or user journey?")
+        acceptance_criteria = self._extract_from_responses("What are the main functional requirements?")
+        technical_reqs = self._extract_from_responses("What technical details or constraints should be considered?") + " " + self._extract_from_responses("Are there any non-functional requirements, such as performance or security?")
+        dependencies = self._extract_from_responses("What dependencies or integrations are needed?")
+        risks = self._extract_from_responses("What are the potential risks or challenges?")
+        
+        # Generate Markdown spec
+        spec_content = f"""# Specification for {self.feature_name}
+
+## Objectives
+{objectives or "Not specified."}
+
+## User Stories
+As a {user_stories or "Not specified."}
+
+## Acceptance Criteria
+{acceptance_criteria or "Not specified."}
+
+## Technical Requirements
+{technical_reqs or "Not specified."}
+
+## Dependencies
+{dependencies or "Not specified."}
+
+## Risks
+{risks or "Not specified."}
+"""
+        self.spec = spec_content
+        print("Spec generated successfully.")
+        return self.spec
+
+    def _extract_from_responses(self, question_text):
+        """
+        Helper to extract response text for a given question.
+        """
+        for resp in self.responses:
+            if resp["question"] == question_text:
+                response = resp["response"]
+                if "follow_up" in resp:
+                    response += " " + resp["follow_up"]
+                return response
+        return ""
+
 # Example usage
 if __name__ == "__main__":
     session = InterviewSession("User Authentication Feature", "Goal: Secure login for web app")
@@ -53,3 +129,7 @@ if __name__ == "__main__":
     print("Generated questions:")
     for q in questions:
         print(f"- {q}")
+    session.conduct_interview()
+    spec = session.generate_spec()
+    if spec:
+        print("\nGenerated Spec:\n", spec)
