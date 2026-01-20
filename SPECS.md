@@ -12,21 +12,21 @@ Develop an interactive specification interview workflow within Claude Code that 
 ## Requirements
 
 ### Functional Requirements
-- **Interview Initiation**: Allow users to start an interview session by specifying a feature or product name, along with optional initial context (e.g., high-level goals, existing docs).
-- **Question Generation**: Automatically generate a series of probing, open-ended questions tailored to the feature domain, progressing from broad to specific (e.g., starting with "What problem does this feature solve?" and deepening into technical details).
-- **Interactive Dialogue**: Support real-time, conversational input from the interviewer and interviewee, with Claude Code facilitating follow-ups based on responses (e.g., clarifying ambiguities or exploring edge cases).
-- **Spec Generation**: At the end of the interview, synthesize responses into a comprehensive spec document, including sections like objectives, user stories, acceptance criteria, technical requirements, dependencies, and risks.
-- **Customization**: Enable users to customize question sets, spec templates, and output formats (e.g., Markdown, JSON, or integration with tools like Jira or Confluence).
-- **Multi-Session Support**: Allow interviews to be paused, resumed, and conducted across multiple sessions, with persistent state.
-- **Collaboration Features**: Support multiple interviewers or note-takers in a session, with real-time collaboration if integrated with shared Claude Code instances.
+- [x] **Interview Initiation**: Allow users to start an interview session by specifying a feature or product name, along with optional initial context (e.g., high-level goals, existing docs).
+- [x] **Question Generation**: Automatically generate a series of probing, open-ended questions tailored to the feature domain, progressing from broad to specific (e.g., starting with "What problem does this feature solve?" and deepening into technical details).
+- [ ] **Interactive Dialogue**: Support real-time, conversational input from the interviewer and interviewee, with Claude Code facilitating follow-ups based on responses (e.g., clarifying ambiguities or exploring edge cases).
+- [ ] **Spec Generation**: At the end of the interview, synthesize responses into a comprehensive spec document, including sections like objectives, user stories, acceptance criteria, technical requirements, dependencies, and risks.
+- [ ] **Customization**: Enable users to customize question sets, spec templates, and output formats (e.g., Markdown, JSON, or integration with tools like Jira or Confluence).
+- [ ] **Multi-Session Support**: Allow interviews to be paused, resumed, and conducted across multiple sessions, with persistent state.
+- [ ] **Collaboration Features**: Support multiple interviewers or note-takers in a session, with real-time collaboration if integrated with shared Claude Code instances.
 
 ### Non-Functional Requirements
-- **Usability**: Intuitive interface within Claude Code, with natural language prompts and minimal setup.
-- **Accuracy**: Ensure generated specs are coherent, non-contradictory, and aligned with best practices (e.g., using agile methodologies like user stories).
-- **Performance**: Handle interviews of varying lengths (e.g., 30 minutes to several hours) without significant latency in question generation or spec output.
-- **Security and Privacy**: Protect sensitive information shared during interviews (e.g., via encryption and access controls).
-- **Scalability**: Support interviews for features ranging from simple UI changes to complex system architectures.
-- **Extensibility**: Allow plugins or extensions for domain-specific question sets (e.g., for healthcare, finance, or gaming).
+- [ ] **Usability**: Intuitive interface within Claude Code, with natural language prompts and minimal setup.
+- [ ] **Accuracy**: Ensure generated specs are coherent, non-contradictory, and aligned with best practices (e.g., using agile methodologies like user stories).
+- [ ] **Performance**: Handle interviews of varying lengths (e.g., 30 minutes to several hours) without significant latency in question generation or spec output.
+- [ ] **Security and Privacy**: Protect sensitive information shared during interviews (e.g., via encryption and access controls).
+- [ ] **Scalability**: Support interviews for features ranging from simple UI changes to complex system architectures.
+- [ ] **Extensibility**: Allow plugins or extensions for domain-specific question sets (e.g., for healthcare, finance, or gaming).
 
 ### Constraints
 - Must integrate seamlessly with existing Claude Code commands and workflows.
