@@ -52,7 +52,7 @@ This feature provides an internal admin tool that enables automated price monito
 **Description:** As the system, prices should be scraped automatically on a fixed schedule.
 
 **Acceptance Criteria:**
-- [ ] Scrape runs automatically at 1:00am server time
+- [x] Scrape runs automatically at 1:00am server time
 - [ ] All selected products are processed
 - [ ] Failures do not block other products
 - [ ] Typecheck/lint passes

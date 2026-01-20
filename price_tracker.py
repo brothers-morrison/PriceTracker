@@ -17,6 +17,9 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd
 import webbrowser
+import schedule
+import time
+from datetime import datetime
 
 
 @dataclass
@@ -243,6 +246,35 @@ class SelectorGenerator:
         else:
             # Fallback: use tag name (less specific)
             return element.name
+    
+    def test_selectors(self, selectors: Dict[str, Dict[str, str]]) -> Dict[str, Dict[str, any]]:
+        """
+        Test the generated selectors by performing a scrape and verifying price extraction.
+        
+        Args:
+            selectors: Dict of selectors per product
+            
+        Returns:
+            Dict with test results for each product
+        """
+        results = {}
+        for product_name, sel_dict in selectors.items():
+            if "error" in sel_dict:
+                results[product_name] = {"success": False, "error": sel_dict["error"]}
+                continue
+            
+            scraper = GenericHTMLScraper(self.url, sel_dict)
+            records = scraper.scrape()
+            if records:
+                # Assume first record is the test; check if price is numeric and > 0
+                price = records[0].price
+                if price > 0:
+                    results[product_name] = {"success": True, "extracted_price": price}
+                else:
+                    results[product_name] = {"success": False, "error": "Invalid price extracted"}
+            else:
+                results[product_name] = {"success": False, "error": "No records scraped"}
+        return results
 
 
 class GoogleSheetsHandler:
@@ -487,6 +519,52 @@ class ProductSelector:
             return []
 
 
+class ScraperScheduler:
+    """Handles scheduling of daily scrapes"""
+    
+    def __init__(self, scraper: WebsiteScraper, selected_products: List[str], selectors: Dict[str, Dict[str, str]], sheets_handler: GoogleSheetsHandler):
+        self.scraper = scraper
+        self.selected_products = selected_products
+        self.selectors = selectors
+        self.sheets_handler = sheets_handler
+    
+    def run_scheduled_scrape(self):
+        """Run the scrape job at the scheduled time"""
+        print(f"Running scheduled scrape at {datetime.now()}")
+        # Load selected products and selectors (assuming persisted)
+        selected = ProductSelector.load_selected_products()
+        if not selected:
+            print("No selected products found. Skipping scrape.")
+            return
+        
+        # For simplicity, assume generic scraper; in production, map to appropriate scraper
+        records = []
+        for product in selected:
+            if product in self.selectors and "error" not in self.selectors[product]:
+                scraper = GenericHTMLScraper(self.scraper.url if hasattr(self.scraper, 'url') else "https://example.com", self.selectors[product])
+                records.extend(scraper.scrape())
+        
+        # Compare with baseline
+        baseline_df = self.sheets_handler.read_baseline()
+        comparison = PriceComparator.compare(records, baseline_df)
+        report = PriceComparator.generate_report(comparison)
+        print(report)
+        
+        # Write back to sheets
+        self.sheets_handler.write_comparison(comparison)
+        
+        # Placeholder for notification (to be implemented in US-006)
+        print("Scrape completed. (Notifications not yet implemented.)")
+    
+    def start_scheduler(self):
+        """Start the scheduler to run daily at 1:00am"""
+        schedule.every().day.at("01:00").do(self.run_scheduled_scrape)
+        print("Scheduler started. Scraping will run daily at 1:00am.")
+        while True:
+            schedule.run_pending()
+            time.sleep(60)  # Check every minute
+
+
 def main():
     """Example usage of the price tracker"""
     
@@ -521,6 +599,15 @@ def main():
         print("\nGenerated selectors:")
         for product, sel in selectors.items():
             print(f"  {product}: {sel}")
+        
+        # Test selectors
+        test_results = generator.test_selectors(selectors)
+        print("\nSelector test results:")
+        for product, result in test_results.items():
+            if result["success"]:
+                print(f"  {product}: Success - Extracted price ${result['extracted_price']:.2f}")
+            else:
+                print(f"  {product}: Failed - {result['error']}")
     
     # Example 3: Compare with baseline (requires Google Sheets setup)
     # Uncomment and configure when ready to use:
@@ -560,6 +647,15 @@ def main():
     )
     prices = generic_scraper.scrape()
     """
+    
+    # Example 5: Start scheduled scraping (for demonstration, run immediately; in production, run as daemon)
+    if selected and selectors:
+        scheduler = ScraperScheduler(usps_scraper, selected, selectors, sheets_handler)  # Using USPS as example; adapt for generic
+        # For testing, run once immediately instead of scheduling
+        test_run = input("Run a test scrape now? (y/n): ").strip().lower()
+        if test_run == 'y':
+            scheduler.run_scheduled_scrape()
+        # To start actual scheduler: scheduler.start_scheduler()
 
 
 if __name__ == "__main__":
