@@ -159,6 +159,91 @@ class GenericHTMLScraper(WebsiteScraper):
             return 0.0
 
 
+class SelectorGenerator:
+    """Generates CSS selectors for product scraping based on website analysis"""
+    
+    def __init__(self, url: str):
+        self.url = url
+    
+    def generate_selectors(self, selected_products: List[str]) -> Dict[str, Dict[str, str]]:
+        """
+        Analyze the website and generate selectors for each selected product.
+        
+        Args:
+            selected_products: List of product names to generate selectors for
+            
+        Returns:
+            Dict mapping product name to selector dict (e.g., {'product_name': '.title', 'price': '.cost'})
+        """
+        selectors = {}
+        
+        try:
+            response = requests.get(self.url, timeout=10)
+            response.raise_for_status()
+            soup = BeautifulSoup(response.content, 'html.parser')
+            
+            # Heuristic: Look for common patterns in HTML
+            # Find potential product containers (divs with product-related classes)
+            product_containers = soup.find_all(['div', 'li', 'article'], class_=lambda c: c and any(word in c.lower() for word in ['product', 'item', 'card']))
+            
+            for product_name in selected_products:
+                # For each selected product, try to find matching elements
+                product_selectors = self._find_selectors_for_product(soup, product_name, product_containers)
+                if product_selectors:
+                    selectors[product_name] = product_selectors
+                else:
+                    selectors[product_name] = {"error": "Could not generate selectors for this product"}
+                    
+        except Exception as e:
+            print(f"Error generating selectors for {self.url}: {e}")
+            for product_name in selected_products:
+                selectors[product_name] = {"error": str(e)}
+        
+        return selectors
+    
+    def _find_selectors_for_product(self, soup: BeautifulSoup, product_name: str, containers: List) -> Optional[Dict[str, str]]:
+        """Find selectors for a specific product"""
+        # Simple heuristic: Look for text matching product name, then find nearby price elements
+        for container in containers:
+            if product_name.lower() in container.get_text().lower():
+                # Found a container with the product name
+                # Look for price within this container
+                price_elem = self._find_price_element(container)
+                if price_elem:
+                    # Generate selector for this price element
+                    selector = self._generate_selector(price_elem)
+                    return {
+                        'container': self._generate_selector(container),
+                        'product_name': self._generate_selector(container.find(text=re.compile(product_name, re.I)).parent if container.find(text=re.compile(product_name, re.I)) else container),
+                        'price': selector
+                    }
+        return None
+    
+    def _find_price_element(self, container) -> Optional:
+        """Find an element containing a price within the container"""
+        # Look for elements with price-like text (contains $ or digits)
+        for elem in container.find_all(text=re.compile(r'\$?\d+\.?\d*')):
+            parent = elem.parent
+            if parent and parent.name in ['span', 'div', 'p', 'strong']:
+                return parent
+        return None
+    
+    def _generate_selector(self, element) -> str:
+        """Generate a CSS selector for an element"""
+        if not element:
+            return ""
+        
+        # Simple selector generation: use class or id if available
+        if element.get('id'):
+            return f"#{element['id']}"
+        elif element.get('class'):
+            classes = '.'.join(element['class'])
+            return f".{classes}"
+        else:
+            # Fallback: use tag name (less specific)
+            return element.name
+
+
 class GoogleSheetsHandler:
     """Handles reading/writing to Google Sheets"""
     
@@ -356,7 +441,7 @@ class ProductSelector:
                     else:
                         print(f"Invalid number: {idx + 1}")
                 if selected:
-                    print(f"Selected so far: {', '.join(selected)}")
+                    print(f"Selected so far: {selected}")
             except ValueError:
                 print("Please enter valid numbers separated by commas, or 'done'.")
         
@@ -427,6 +512,14 @@ def main():
         print(f"Selected products: {selected}")
     else:
         print("No products selected.")
+    
+    # Generate selectors for selected products
+    if selected:
+        generator = SelectorGenerator(url)
+        selectors = generator.generate_selectors(selected)
+        print("\nGenerated selectors:")
+        for product, sel in selectors.items():
+            print(f"  {product}: {sel}")
     
     # Example 3: Compare with baseline (requires Google Sheets setup)
     # Uncomment and configure when ready to use:
