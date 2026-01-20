@@ -44,7 +44,7 @@ This feature provides an internal admin tool that enables automated price monito
 - [x] Selector code is generated per selected product
 - [x] Selectors correctly extract price values in test runs
 - [x] Selector generation failures are explicitly reported
-- [ ] Typecheck/lint passes
+- [x] Typecheck/lint passes
 
 ---
 
