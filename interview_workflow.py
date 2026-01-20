@@ -29,9 +29,11 @@ class InterviewSession:
         """
         Start the interview session. This could be expanded to initialize logging, set up state, etc.
         """
-        print(f"Starting interview session for feature: {self.feature_name}")
+        print("Welcome to the Interactive Specification Interview Workflow!")
+        print(f"We're here to help you gather requirements for your feature: {self.feature_name}.")
         if self.initial_context:
-            print(f"Initial context: {self.initial_context}")
+            print(f"To get started, here's some initial context: {self.initial_context}")
+        print("Let's begin by generating some thoughtful questions to guide our conversation.")
         # Future: Integrate with Claude API for conversational start
 
     def generate_questions(self):
@@ -44,7 +46,7 @@ class InterviewSession:
                 with open(self.custom_questions_file, 'r') as f:
                     self.questions = json.load(f)
             except (FileNotFoundError, json.JSONDecodeError) as e:
-                print(f"Error loading custom questions: {e}. Using defaults.")
+                print(f"Oops, there was an issue loading your custom questions: {e}. No worries, we'll use our default set instead.")
                 self.questions = self._default_questions()
         else:
             self.questions = self._default_questions()
@@ -75,19 +77,22 @@ class InterviewSession:
         if not self.questions:
             self.generate_questions()
         
+        print("\nAlright, let's dive into the interview. I'll ask you a series of questions to help flesh out the requirements.")
+        print("Feel free to provide as much detail as you like – the more info, the better the spec!")
+        
         for question in self.questions:
-            print(f"\nQuestion: {question}")
-            response = input("Response: ").strip()
+            print(f"\n{question}")
+            response = input("Your response: ").strip()
             self.responses.append({"question": question, "response": response})
             
             # Basic follow-up: If response is too short, prompt for more details
             if len(response.split()) < 5:
-                follow_up = input("That seems brief. Can you elaborate? ").strip()
+                follow_up = input("That seems a bit brief. Could you tell me more about that? ").strip()
                 if follow_up:
                     self.responses[-1]["follow_up"] = follow_up
-                    print("Follow-up noted.")
+                    print("Thanks for the extra details – noted!")
         
-        print("\nInterview completed. Responses collected.")
+        print("\nGreat job! We've completed the interview. Now, let's generate your spec based on what we've discussed.")
 
     def generate_spec(self):
         """
@@ -96,7 +101,7 @@ class InterviewSession:
         Output in specified format.
         """
         if not self.responses:
-            print("No responses available. Please conduct the interview first.")
+            print("It looks like we don't have any responses yet. Please run the interview first.")
             return None
         
         # Extract key info from responses (basic mapping; can be enhanced with NLP later)
@@ -140,7 +145,7 @@ As a {user_stories or "Not specified."}
 {risks or "Not specified."}
 """
             self.spec = spec_content
-        print("Spec generated successfully.")
+        print("Your spec has been generated successfully! Here's what we came up with:")
         return self.spec
 
     def _extract_from_responses(self, question_text):
@@ -170,7 +175,7 @@ As a {user_stories or "Not specified."}
         }
         with open(filepath, 'w') as f:
             json.dump(state, f, indent=4)
-        print(f"Session saved to {filepath}.")
+        print(f"Session saved to {filepath}. You can resume it later if needed.")
 
     def load_session(self, filepath: str):
         """
@@ -186,21 +191,21 @@ As a {user_stories or "Not specified."}
             self.responses = state.get("responses", [])
             self.questions = state.get("questions", [])
             self.spec = state.get("spec", None)
-            print(f"Session loaded from {filepath}.")
+            print(f"Session loaded from {filepath}. Ready to continue!")
         except (FileNotFoundError, json.JSONDecodeError) as e:
-            print(f"Error loading session: {e}.")
+            print(f"Sorry, there was an error loading the session: {e}.")
 
 # Example usage
 if __name__ == "__main__":
     # Allow command-line args for customization
     import argparse
-    parser = argparse.ArgumentParser(description="Run an interview session.")
-    parser.add_argument("feature_name", help="Name of the feature")
-    parser.add_argument("--initial_context", help="Initial context")
-    parser.add_argument("--custom_questions_file", help="Path to custom questions JSON file")
-    parser.add_argument("--output_format", choices=['markdown', 'json'], default='markdown', help="Output format for spec")
-    parser.add_argument("--save_session", help="Filepath to save session after interview")
-    parser.add_argument("--load_session", help="Filepath to load session from")
+    parser = argparse.ArgumentParser(description="Run an interview session for gathering feature requirements.")
+    parser.add_argument("feature_name", help="Name of the feature you're interviewing about")
+    parser.add_argument("--initial_context", help="Any initial context or background info")
+    parser.add_argument("--custom_questions_file", help="Path to a JSON file with your own questions")
+    parser.add_argument("--output_format", choices=['markdown', 'json'], default='markdown', help="How you'd like the spec output (default: markdown)")
+    parser.add_argument("--save_session", help="Where to save the session for later")
+    parser.add_argument("--load_session", help="Path to a saved session to resume")
     args = parser.parse_args()
 
     session = InterviewSession(args.feature_name, args.initial_context, args.custom_questions_file, args.output_format)
@@ -208,7 +213,7 @@ if __name__ == "__main__":
         session.load_session(args.load_session)
     session.start_session()
     questions = session.generate_questions()
-    print("Generated questions:")
+    print("\nHere are the questions we'll cover:")
     for q in questions:
         print(f"- {q}")
     session.conduct_interview()
