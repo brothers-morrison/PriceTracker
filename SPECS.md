@@ -32,7 +32,7 @@ This feature provides an internal admin tool that enables automated price monito
 - [x] System presents a list of detected products or product candidates
 - [x] Admin can select one or more products
 - [x] Selected products are persisted
-- [ ] Typecheck/lint passes
+- [x] Typecheck/lint passes
 - [ ] Verify in browser using dev-browser skill
 
 ---
