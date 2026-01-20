@@ -223,3 +223,7 @@ __marimo__/
 auth/
 auth/*
 auth/*.json
+.aider*
+
+# aider-ralph logs
+.ralph/logs/
