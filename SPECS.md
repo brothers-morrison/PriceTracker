@@ -29,8 +29,8 @@ This feature provides an internal admin tool that enables automated price monito
 **Description:** As an administrator, I want to select products from the target website so only relevant items are tracked.
 
 **Acceptance Criteria:**
-- [ ] System presents a list of detected products or product candidates
-- [ ] Admin can select one or more products
+- [x] System presents a list of detected products or product candidates
+- [x] Admin can select one or more products
 - [ ] Selected products are persisted
 - [ ] Typecheck/lint passes
 - [ ] Verify in browser using dev-browser skill

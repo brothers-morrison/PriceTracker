@@ -174,7 +174,7 @@ class GoogleSheetsHandler:
     
     def connect(self):
         """Establish connection to Google Sheets"""
-        scope = ['https://spreadsheets.google.com/feeds',
+        scope = ['https://spreadsheets.com/feeds',
                  'https://www.googleapis.com/auth/drive']
         creds = ServiceAccountCredentials.from_json_keyfile_name(
             self.credentials_file, scope)
@@ -299,6 +299,95 @@ class PriceComparator:
         return "\n".join(report)
 
 
+class ProductSelector:
+    """Handles product detection and selection from a website"""
+    
+    @staticmethod
+    def detect_products(url: str) -> List[str]:
+        """
+        Detect and return a list of potential products from the given URL.
+        Uses basic web scraping to find elements that might represent products.
+        """
+        try:
+            response = requests.get(url, timeout=10)
+            response.raise_for_status()
+            soup = BeautifulSoup(response.text, 'html.parser')
+            # Simple heuristic: Look for divs or h2 elements that might contain product info
+            # This is a basic implementation; can be improved with more sophisticated selectors
+            candidates = soup.find_all(['div', 'h2'], class_=lambda c: c and ('product' in c.lower() or 'item' in c.lower())) or soup.find_all('div', attrs={'data-product': True})
+            product_list = []
+            for candidate in candidates[:10]:  # Limit to first 10 to avoid overwhelming output
+                text = candidate.get_text(strip=True)
+                if text and len(text) > 3:  # Filter out very short or empty texts
+                    product_list.append(text)
+            return product_list
+        except requests.RequestException as e:
+            print(f"Error fetching the URL: {e}")
+            return []
+        except Exception as e:
+            print(f"Error parsing the page: {e}")
+            return []
+    
+    @staticmethod
+    def select_products(detected_products: List[str]) -> List[str]:
+        """
+        Present the detected products and allow the admin to select one or more.
+        Returns the list of selected product names.
+        """
+        if not detected_products:
+            print("No products detected to select from.")
+            return []
+        
+        print("Detected products or candidates:")
+        for i, product in enumerate(detected_products, 1):
+            print(f"{i}. {product}")
+        
+        selected = []
+        while True:
+            try:
+                choice = input("Enter the number(s) of the product(s) to select (comma-separated, or 'done' to finish): ").strip()
+                if choice.lower() == 'done':
+                    break
+                indices = [int(x.strip()) - 1 for x in choice.split(',') if x.strip().isdigit()]
+                for idx in indices:
+                    if 0 <= idx < len(detected_products):
+                        selected.append(detected_products[idx])
+                    else:
+                        print(f"Invalid number: {idx + 1}")
+                if selected:
+                    print(f"Selected so far: {', '.join(selected)}")
+            except ValueError:
+                print("Please enter valid numbers separated by commas, or 'done'.")
+        
+        return list(set(selected))  # Remove duplicates
+    
+    @staticmethod
+    def persist_selected_products(selected_products: List[str], filename: str = 'selected_products.json'):
+        """
+        Persist the selected products to a JSON file.
+        """
+        try:
+            with open(filename, 'w') as f:
+                json.dump(selected_products, f, indent=4)
+            print(f"Selected products persisted to {filename}.")
+        except Exception as e:
+            print(f"Error persisting selected products: {e}")
+    
+    @staticmethod
+    def load_selected_products(filename: str = 'selected_products.json') -> List[str]:
+        """
+        Load persisted selected products from a JSON file.
+        """
+        try:
+            with open(filename, 'r') as f:
+                return json.load(f)
+        except FileNotFoundError:
+            return []
+        except Exception as e:
+            print(f"Error loading selected products: {e}")
+            return []
+
+
 def main():
     """Example usage of the price tracker"""
     
@@ -311,7 +400,18 @@ def main():
     for record in current_prices[:3]:  # Show first 3
         print(f"  {record.product_name}: ${record.price:.2f}")
     
-    # Example 2: Compare with baseline (requires Google Sheets setup)
+    # Example 2: Product Selection Workflow
+    print("\n--- Product Selection Workflow ---")
+    url = input("Enter the target website URL: ").strip()
+    detected = ProductSelector.detect_products(url)
+    selected = ProductSelector.select_products(detected)
+    if selected:
+        ProductSelector.persist_selected_products(selected)
+        print(f"Selected products: {selected}")
+    else:
+        print("No products selected.")
+    
+    # Example 3: Compare with baseline (requires Google Sheets setup)
     # Uncomment and configure when ready to use:
 
     sheets_handler = GoogleSheetsHandler(
@@ -335,7 +435,7 @@ def main():
     sheets_handler.write_comparison(comparison)
     
     
-    # Example 3: Generic scraper configuration
+    # Example 4: Generic scraper configuration
     # Configure for any website by specifying CSS selectors
     """
     generic_scraper = GenericHTMLScraper(
