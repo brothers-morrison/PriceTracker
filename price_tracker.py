@@ -192,10 +192,11 @@ class SelectorGenerator:
                 if product_selectors:
                     selectors[product_name] = product_selectors
                 else:
+                    print(f"Failed to generate selectors for product '{product_name}': Could not find matching elements on the page.")
                     selectors[product_name] = {"error": "Could not generate selectors for this product"}
                     
         except Exception as e:
-            print(f"Error generating selectors for {self.url}: {e}")
+            print(f"Failed to generate selectors due to error: {e}")
             for product_name in selected_products:
                 selectors[product_name] = {"error": str(e)}
         
