@@ -1,6 +1,7 @@
 import json
 import sys
 from typing import List, Dict, Optional
+import time
 
 class InterviewSession:
     """
@@ -104,6 +105,8 @@ class InterviewSession:
             print("It looks like we don't have any responses yet. Please run the interview first.")
             return None
         
+        start_time = time.time()  # Start performance timing
+        
         # Extract key info from responses (basic mapping; can be enhanced with NLP later)
         objectives = self._extract_from_responses("What are the key goals and objectives for this feature?")
         user_stories = self._extract_from_responses("Who are the primary users of this feature?") + " " + self._extract_from_responses("Can you describe the expected workflow or user journey?")
@@ -145,6 +148,11 @@ As a {user_stories or "Not specified."}
 {risks or "Not specified."}
 """
             self.spec = spec_content
+        
+        end_time = time.time()  # End performance timing
+        elapsed_time = end_time - start_time
+        print(f"Spec generation completed in {elapsed_time:.4f} seconds. (Performance check: Ensure this remains under 1 second for typical interviews.)")
+        
         print("Your spec has been generated successfully! Here's what we came up with:")
         return self.spec
 
@@ -175,7 +183,7 @@ As a {user_stories or "Not specified."}
         }
         with open(filepath, 'w') as f:
             json.dump(state, f, indent=4)
-        print(f"Session saved to {filepath}. You can resume it later if needed.")
+        print(f"Session saved to {filepath}.")
 
     def load_session(self, filepath: str):
         """
@@ -191,7 +199,7 @@ As a {user_stories or "Not specified."}
             self.responses = state.get("responses", [])
             self.questions = state.get("questions", [])
             self.spec = state.get("spec", None)
-            print(f"Session loaded from {filepath}. Ready to continue!")
+            print(f"Session loaded from {filepath}.")
         except (FileNotFoundError, json.JSONDecodeError) as e:
             print(f"Sorry, there was an error loading the session: {e}.")
 
