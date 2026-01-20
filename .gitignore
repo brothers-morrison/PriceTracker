@@ -227,3 +227,7 @@ auth/*.json
 
 # aider-ralph logs
 .ralph/logs/
+
+myenv/
+myenv/*
+myenv/**/*
