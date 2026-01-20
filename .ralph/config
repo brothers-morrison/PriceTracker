@@ -1,0 +1,24 @@
+# aider-ralph configuration
+# These are default settings that can be overridden via command line
+
+# Maximum iterations before stopping (safety net)
+MAX_ITERATIONS=30
+
+# Safer completion signal (recommended)
+COMPLETION_TAG=promise
+COMPLETION_VALUE=COMPLETED
+
+# Legacy completion substring (optional)
+# COMPLETION_PROMISE=COMPLETE
+
+# Delay between iterations in seconds
+ITERATION_DELAY=2
+
+# Default specs file
+SPECS_FILE=SPECS.md
+
+# Default notes file
+NOTES_FILE=.ralph/notes.md
+
+# Aider options (space-separated)
+# AIDER_EXTRA_OPTS=--yes
