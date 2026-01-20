@@ -16,6 +16,7 @@ from bs4 import BeautifulSoup
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd
+import webbrowser
 
 
 @dataclass
@@ -362,6 +363,18 @@ class ProductSelector:
         return list(set(selected))  # Remove duplicates
     
     @staticmethod
+    def verify_in_browser(url: str):
+        """
+        Open the target URL in the default web browser for manual verification of detected products.
+        This allows the admin to visually inspect the site using dev tools if needed.
+        """
+        try:
+            webbrowser.open(url)
+            print(f"Opened {url} in your default web browser for verification.")
+        except Exception as e:
+            print(f"Error opening browser: {e}")
+    
+    @staticmethod
     def persist_selected_products(selected_products: List[str], filename: str = 'selected_products.json'):
         """
         Persist the selected products to a JSON file.
@@ -404,6 +417,10 @@ def main():
     print("\n--- Product Selection Workflow ---")
     url = input("Enter the target website URL: ").strip()
     detected = ProductSelector.detect_products(url)
+    # Offer browser verification
+    verify = input("Would you like to verify the detected products in your browser? (y/n): ").strip().lower()
+    if verify == 'y':
+        ProductSelector.verify_in_browser(url)
     selected = ProductSelector.select_products(detected)
     if selected:
         ProductSelector.persist_selected_products(selected)
