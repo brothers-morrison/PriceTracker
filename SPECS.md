@@ -18,10 +18,10 @@ This feature provides an internal admin tool that enables automated price monito
 **Description:** As an administrator, I want to specify a website so the system knows where to discover products.
 
 **Acceptance Criteria:**
-- [ ] Admin can input a valid website URL
-- [ ] URL is validated for basic reachability
-- [ ] Errors are shown for invalid or unreachable URLs
-- [ ] Typecheck/lint passes
+- [x] Admin can input a valid website URL
+- [x] URL is validated for basic reachability
+- [x] Errors are shown for invalid or unreachable URLs
+- [x] Typecheck/lint passes
 
 ---
 
