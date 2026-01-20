@@ -1,77 +1,126 @@
-# Lisa Plan: Interactive Specification Interview Workflow for Claude Code
+# PRD: Automated Website Price Monitoring Tool (MVP)
 
-## Objective
-Develop an interactive specification interview workflow within Claude Code that enables users to conduct in-depth feature interviews with stakeholders, automatically generating comprehensive, structured specifications (specs) for software features, products, or systems. This workflow should streamline the requirements gathering process, reduce ambiguity, and produce actionable documentation that can be directly used for development, testing, and project planning.
+## 1. Introduction / Overview
 
-## Stakeholders
-- **Primary Users**: Product managers, business analysts, and developers who need to elicit and document detailed requirements from stakeholders (e.g., customers, end-users, domain experts).
-- **Stakeholders Being Interviewed**: End-users, subject matter experts, clients, and team members providing input on features.
-- **Secondary Users**: QA engineers, designers, and project managers who consume the generated specs for validation, design, and planning.
-- **System Integrators**: Claude Code developers and maintainers who integrate this workflow into the tool.
+This feature provides an internal admin tool that enables automated price monitoring for selected products on a given website. Administrators can define a target website, select products found on that site, and have the system automatically generate selector logic to scrape prices on a scheduled basis. The system stores results, compares them against prior runs, and notifies users when changes occur.
 
-## Requirements
+## 2. Goals
 
-### Functional Requirements
-- [x] **Interview Initiation**: Allow users to start an interview session by specifying a feature or product name, along with optional initial context (e.g., high-level goals, existing docs).
-- [x] **Question Generation**: Automatically generate a series of probing, open-ended questions tailored to the feature domain, progressing from broad to specific (e.g., starting with "What problem does this feature solve?" and deepening into technical details).
-- [x] **Interactive Dialogue**: Support real-time, conversational input from the interviewer and interviewee, with Claude Code facilitating follow-ups based on responses (e.g., clarifying ambiguities or exploring edge cases).
-- [x] **Spec Generation**: At the end of the interview, synthesize responses into a comprehensive spec document, including sections like objectives, user stories, acceptance criteria, technical requirements, dependencies, and risks.
-- [x] **Customization**: Enable users to customize question sets, spec templates, and output formats (e.g., Markdown, JSON, or integration with tools like Jira or Confluence).
-- [x] **Multi-Session Support**: Allow interviews to be paused, resumed, and conducted across multiple sessions, with persistent state.
-- [x] **Collaboration Features**: Support multiple interviewers or note-takers in a session, with real-time collaboration if integrated with shared Claude Code instances.
+- Enable admins to monitor product prices from arbitrary websites
+- Automatically generate reliable selector code for scraping prices
+- Execute scheduled scrapes daily at 1:00am
+- Persist historical scrape results
+- Detect and surface price changes accurately
 
-### Non-Functional Requirements
-- [x] **Usability**: Intuitive interface within Claude Code, with natural language prompts and minimal setup.
-- [x] **Accuracy**: Ensure generated specs are coherent, non-contradictory, and aligned with best practices (e.g., using agile methodologies like user stories).
-- [x] **Performance**: Handle interviews of varying lengths (e.g., 30 minutes to several hours) without significant latency in question generation or spec output.
-- [x] **Security and Privacy**: Protect sensitive information shared during interviews (e.g., via encryption and access controls).
-- [x] **Scalability**: Support interviews for features ranging from simple UI changes to complex system architectures.
-- [ ] **Extensibility**: Allow plugins or extensions for domain-specific question sets (e.g., for healthcare, finance, or gaming).
+## 3. User Stories
 
-### Constraints
-- Must integrate seamlessly with existing Claude Code commands and workflows.
-- Generated specs should be exportable in standard formats for use in external tools.
-- Compliance with data privacy regulations (e.g., GDPR) for any stored interview data.
+### US-001: Define target website
+**Description:** As an administrator, I want to specify a website so the system knows where to discover products.
 
-## Implementation Plan
+**Acceptance Criteria:**
+- [ ] Admin can input a valid website URL
+- [ ] URL is validated for basic reachability
+- [ ] Errors are shown for invalid or unreachable URLs
+- [ ] Typecheck/lint passes
 
-### Phase 1: Core Interview Engine (MVP)
-- Develop the basic interview initiation and question generation logic using Claude's conversational capabilities.
-- Implement a simple spec generation template with key sections (e.g., based on IEEE 830 or agile spec formats).
-- Test with sample interviews to ensure coherence.
+---
 
-### Phase 2: Enhanced Features
-- Add customization options for question sets and templates.
-- Integrate multi-session support and basic collaboration.
-- Refine spec generation to include diagrams or code snippets where applicable.
+### US-002: Select products from website
+**Description:** As an administrator, I want to select products from the target website so only relevant items are tracked.
 
-### Phase 3: Integration and Polish
-- Fully integrate with Claude Code's UI/UX.
-- Add export functionalities and extensibility APIs.
-- Conduct user testing and iterate based on feedback.
+**Acceptance Criteria:**
+- [ ] System presents a list of detected products or product candidates
+- [ ] Admin can select one or more products
+- [ ] Selected products are persisted
+- [ ] Typecheck/lint passes
+- [ ] Verify in browser using dev-browser skill
 
-### Phase 4: Deployment and Maintenance
-- Release as a built-in Claude Code feature or plugin.
-- Monitor usage, gather metrics, and provide updates for new domains or improvements.
+---
 
-## Risks and Mitigations
-- **Risk: Ambiguous or Incomplete Specs**: Mitigation: Incorporate validation steps where Claude Code prompts for confirmation or additional details.
-- **Risk: Over-Reliance on AI**: Mitigation: Allow human oversight and editing of generated specs.
-- **Risk: Privacy Concerns**: Mitigation: Implement opt-in data handling and clear disclaimers.
-- **Risk: Integration Challenges**: Mitigation: Start with modular design for easy plugging into Claude Code.
+### US-003: Generate selector code for price scraping
+**Description:** As the system, selector logic should be generated so prices can be scraped reliably.
 
-## Success Metrics
-- User satisfaction scores from post-interview surveys (target: >80% positive).
-- Reduction in spec revision cycles (e.g., 50% fewer iterations compared to manual processes).
-- Adoption rate within Claude Code user base (e.g., 30% of users utilizing the workflow within 6 months).
+**Acceptance Criteria:**
+- [ ] Selector code is generated per selected product
+- [ ] Selectors correctly extract price values in test runs
+- [ ] Selector generation failures are explicitly reported
+- [ ] Typecheck/lint passes
 
-## Timeline
-- Phase 1: 4-6 weeks
-- Phase 2: 6-8 weeks
-- Phase 3: 4-6 weeks
-- Phase 4: Ongoing
+---
 
-## Resources Needed
-- Development team: 2-3 engineers familiar with Claude API and conversational AI.
-- Testing resources: Beta users for interview simulations.
-- Documentation: User guides and training materials.
+### US-004: Execute scheduled daily scrape
+**Description:** As the system, prices should be scraped automatically on a fixed schedule.
+
+**Acceptance Criteria:**
+- [ ] Scrape runs automatically at 1:00am server time
+- [ ] All selected products are processed
+- [ ] Failures do not block other products
+- [ ] Typecheck/lint passes
+
+---
+
+### US-005: Persist and diff scrape results
+**Description:** As the system, scrape results should be stored and compared so changes can be detected.
+
+**Acceptance Criteria:**
+- [ ] Results are stored in a supported database (MongoDB, Postgres, or SQLite)
+- [ ] Results are sorted and normalized before comparison
+- [ ] Differences versus previous run are computed correctly
+- [ ] Typecheck/lint passes
+
+---
+
+### US-006: Notify user on detected changes
+**Description:** As an administrator, I want to be notified when prices change so I can take action.
+
+**Acceptance Criteria:**
+- [ ] Notification is sent only when differences are detected
+- [ ] Notification includes product name, old price, and new price
+- [ ] No notification is sent when no changes occur
+- [ ] Typecheck/lint passes
+
+## 4. Functional Requirements
+
+- FR-1: The system must accept a website URL as input
+- FR-2: The system must allow admins to select products from that website
+- FR-3: The system must generate selector code to extract prices
+- FR-4: The system must scrape prices daily at 1:00am
+- FR-5: The system must store scrape results in a supported database
+- FR-6: The system must diff results against the previous run
+- FR-7: The system must notify users when changes are detected
+
+## 5. Non-Goals (Out of Scope)
+
+- Real-time or on-demand scraping
+- Anti-bot evasion or CAPTCHA bypassing
+- Guaranteed support for all website layouts
+- Advanced analytics or dashboards
+- Public or third-party API access
+
+## 6. Design Considerations (Optional)
+
+- Initial UI may be minimal and admin-focused
+- Product selection may evolve into a visual GUI in later phases
+- Clear separation between discovery, scraping, and notification logic
+
+## 7. Technical Considerations (Optional)
+
+- Scraping must respect robots.txt where applicable
+- Scheduler must be resilient to restarts
+- Database choice should be configurable
+- Selector generation should be testable and isolated
+- Diffing logic should handle missing or malformed data safely
+
+## 8. Success Metrics
+
+- Daily scrapes complete without manual intervention
+- Price changes are detected accurately
+- No false-positive notifications
+- Historical price data is retained correctly
+
+## 9. Open Questions
+
+- How are products initially detected on arbitrary websites?
+- What notification channels are supported (email, webhook, etc.)?
+- Should scrape retries occur on transient failures?
+- How should currency and formatting differences be normalized?
