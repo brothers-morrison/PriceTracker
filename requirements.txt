@@ -136,7 +136,6 @@ socksio==1.0.0
 sounddevice==0.5.2
 soundfile==0.13.1
 soupsieve==2.7
-systemd-python==234
 tiktoken==0.10.0
 tokenizers==0.21.4
 tqdm==4.67.1
