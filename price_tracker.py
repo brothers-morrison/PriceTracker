@@ -23,15 +23,11 @@ except ImportError:
 try:
     from oauth2client.service_account import ServiceAccountCredentials
 except ImportError:
-    print("Warning: oauth2client not installed. Google Sheets functionality will be limited.")
-    ServiceAccountCredentials = None
+    os.system('pip install oauth2client')
 try:
     import pandas as pd
-    PANDAS_AVAILABLE = True
 except ImportError:
-    print("Warning: pandas not installed. DataFrame functionality will be limited.")
-    pd = None
-    PANDAS_AVAILABLE = False
+    os.system('pip install oauth2client')
 import sqlite3
 import os
 import webbrowser
