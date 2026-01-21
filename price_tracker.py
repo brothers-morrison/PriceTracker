@@ -15,7 +15,11 @@ import requests
 from bs4 import BeautifulSoup
 import gspread
 import gspread.exceptions
-from oauth2client.service_account import ServiceAccountCredentials
+try:
+    from oauth2client.service_account import ServiceAccountCredentials
+except ImportError:
+    print("Warning: oauth2client not installed. Google Sheets functionality will be limited.")
+    ServiceAccountCredentials = None
 import pandas as pd
 import webbrowser
 # import schedule
@@ -295,6 +299,8 @@ class GoogleSheetsHandler:
     
     def connect(self):
         """Establish connection to Google Sheets"""
+        if ServiceAccountCredentials is None:
+            raise ImportError("oauth2client library not available")
         scope = ['https://spreadsheets.com/feeds',
                  'https://www.googleapis.com/auth/drive']
         creds = ServiceAccountCredentials.from_json_keyfile_name(
