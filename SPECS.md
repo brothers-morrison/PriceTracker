@@ -63,7 +63,7 @@ This feature provides an internal admin tool that enables automated price monito
 **Description:** As the system, scrape results should be stored and compared so changes can be detected.
 
 **Acceptance Criteria:**
-- [ ] Results are stored in a supported database (MongoDB, Postgres, or SQLite)
+- [x] Results are stored in a supported database (MongoDB, Postgres, or SQLite)
 - [ ] Results are sorted and normalized before comparison
 - [ ] Differences versus previous run are computed correctly
 - [ ] Typecheck/lint passes

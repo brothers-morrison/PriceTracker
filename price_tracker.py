@@ -25,6 +25,8 @@ import webbrowser
 # import schedule
 import time
 from datetime import datetime
+import sqlite3
+import os
 
 
 @dataclass
@@ -281,6 +283,60 @@ class SelectorGenerator:
             else:
                 results[product_name] = {"success": False, "error": "No records scraped"}
         return results
+
+
+class DatabaseHandler:
+    """Handles storing and retrieving scrape results in a database (SQLite by default)"""
+    
+    def __init__(self, db_path: str = 'price_tracker.db'):
+        """
+        Args:
+            db_path: Path to the SQLite database file
+        """
+        self.db_path = db_path
+        self._init_db()
+    
+    def _init_db(self):
+        """Initialize the database and create tables if they don't exist"""
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS scrape_results (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                product_name TEXT NOT NULL,
+                size TEXT,
+                price REAL NOT NULL,
+                source TEXT,
+                timestamp TEXT NOT NULL
+            )
+        ''')
+        conn.commit()
+        conn.close()
+    
+    def store_results(self, records: List[PriceRecord]):
+        """Store a list of PriceRecord in the database"""
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        for record in records:
+            cursor.execute('''
+                INSERT INTO scrape_results (product_name, size, price, source, timestamp)
+                VALUES (?, ?, ?, ?, ?)
+            ''', (record.product_name, record.size, record.price, record.source, record.timestamp or datetime.now().isoformat()))
+        conn.commit()
+        conn.close()
+        print(f"Stored {len(records)} records in database.")
+    
+    def get_latest_results(self) -> pd.DataFrame:
+        """Retrieve the latest scrape results for each product (most recent timestamp)"""
+        conn = sqlite3.connect(self.db_path)
+        query = '''
+            SELECT product_name, size, price, source, MAX(timestamp) as timestamp
+            FROM scrape_results
+            GROUP BY product_name, size
+        '''
+        df = pd.read_sql_query(query, conn)
+        conn.close()
+        return df
 
 
 class GoogleSheetsHandler:
@@ -560,11 +616,12 @@ class ProductSelector:
 class ScraperScheduler:
     """Handles scheduling of daily scrapes"""
     
-    def __init__(self, scraper: WebsiteScraper, selected_products: List[str], selectors: Dict[str, Dict[str, str]], sheets_handler: GoogleSheetsHandler):
+    def __init__(self, scraper: WebsiteScraper, selected_products: List[str], selectors: Dict[str, Dict[str, str]], sheets_handler: GoogleSheetsHandler, db_handler: DatabaseHandler):
         self.scraper = scraper
         self.selected_products = selected_products
         self.selectors = selectors
         self.sheets_handler = sheets_handler
+        self.db_handler = db_handler
     
     def run_scheduled_scrape(self):
         """Run the scrape job at the scheduled time"""
@@ -588,8 +645,11 @@ class ScraperScheduler:
                 print(f"Error scraping product '{product}': {e}")
                 continue
         
-        # Compare with baseline
-        baseline_df = self.sheets_handler.read_baseline()
+        # Store results in database
+        self.db_handler.store_results(records)
+        
+        # Compare with baseline (now from database)
+        baseline_df = self.db_handler.get_latest_results().rename(columns={'price': 'baseline_price'})
         comparison = PriceComparator.compare(records, baseline_df)
         report = PriceComparator.generate_report(comparison)
         print(report)
@@ -666,13 +726,14 @@ def main():
     # Example 3: Compare with baseline (requires Google Sheets setup)
     # Uncomment and configure when ready to use:
     sheets_handler = None
+    db_handler = DatabaseHandler()
     try:
         sheets_handler = GoogleSheetsHandler(
             credentials_file='auth/google-service-account-credentials.json',
             sheet_url='https://docs.google.com/spreadsheets/d/1GRT_hiUgzu68mKJuCLa5U98333ZCi30fJgu9SnNI87k/edit'
         )
         
-        baseline_df = sheets_handler.read_baseline()
+        baseline_df = db_handler.get_latest_results().rename(columns={'price': 'baseline_price'})
         comparison = PriceComparator.compare(current_prices, baseline_df)
         report = PriceComparator.generate_report(comparison)
         
@@ -705,7 +766,7 @@ def main():
     
     # Example 5: Start scheduled scraping (for demonstration, run immediately; in production, run as daemon)
     if selected and selectors and sheets_handler:
-        scheduler = ScraperScheduler(usps_scraper, selected, selectors, sheets_handler)  # Using USPS as example; adapt for generic
+        scheduler = ScraperScheduler(usps_scraper, selected, selectors, sheets_handler, db_handler)  # Using USPS as example; adapt for generic
         # For testing, run once immediately instead of scheduling
         test_run = input("Run a test scrape now? (y/n): ").strip().lower()
         if test_run == 'y':
