@@ -231,3 +231,6 @@ auth/*.json
 myenv/
 myenv/*
 myenv/**/*
+github_painter
+github_painter*
+**/github_painter/*
