@@ -14,6 +14,7 @@ from abc import ABC, abstractmethod
 import requests
 from bs4 import BeautifulSoup
 import gspread
+import gspread.exceptions
 from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd
 import webbrowser
@@ -46,6 +47,7 @@ class USPSScraper(WebsiteScraper):
     """Scrapes USPS flat rate pricing"""
     
     def __init__(self):
+        self.url = "https://www.usps.com/business/prices.htm"
         self.base_url = "https://www.usps.com/business/prices.htm"
         # Mapping of USPS sizes to standard dimensions
         self.size_mapping = {
@@ -545,7 +547,8 @@ class ScraperScheduler:
         records = []
         for product in selected:
             if product in self.selectors and "error" not in self.selectors[product]:
-                scraper = GenericHTMLScraper(self.scraper.url if hasattr(self.scraper, 'url') else "https://example.com", self.selectors[product])
+                scraper_url = getattr(self.scraper, 'url', "https://example.com")
+                scraper = GenericHTMLScraper(scraper_url, self.selectors[product])
                 records.extend(scraper.scrape())
         
         # Compare with baseline
@@ -596,6 +599,9 @@ def main():
     else:
         print("No products selected.")
     
+    # Initialize variables for later use
+    selectors = {}
+    
     # Generate selectors for selected products
     if selected:
         generator = SelectorGenerator(url)
@@ -612,6 +618,9 @@ def main():
                 print(f"  {product}: Success - Extracted price ${result['extracted_price']:.2f}")
             else:
                 print(f"  {product}: Failed - {result['error']}")
+    else:
+        # Initialize empty list for later use
+        selected = []
     
     # Example 3: Compare with baseline (requires Google Sheets setup)
     # Uncomment and configure when ready to use:
