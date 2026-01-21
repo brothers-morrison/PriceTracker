@@ -615,6 +615,7 @@ def main():
     
     # Example 3: Compare with baseline (requires Google Sheets setup)
     # Uncomment and configure when ready to use:
+    sheets_handler = None
     try:
         sheets_handler = GoogleSheetsHandler(
             credentials_file='auth/google-service-account-credentials.json',
@@ -653,13 +654,15 @@ def main():
     """
     
     # Example 5: Start scheduled scraping (for demonstration, run immediately; in production, run as daemon)
-    if selected and selectors:
+    if selected and selectors and sheets_handler:
         scheduler = ScraperScheduler(usps_scraper, selected, selectors, sheets_handler)  # Using USPS as example; adapt for generic
         # For testing, run once immediately instead of scheduling
         test_run = input("Run a test scrape now? (y/n): ").strip().lower()
         if test_run == 'y':
             scheduler.run_scheduled_scrape()
         # To start actual scheduler: scheduler.start_scheduler()
+    elif selected and selectors:
+        print("\nScheduler not started - Google Sheets handler not available.")
 
 
 if __name__ == "__main__":
