@@ -55,7 +55,7 @@ This feature provides an internal admin tool that enables automated price monito
 - [x] Scrape runs automatically at 1:00am server time
 - [ ] All selected products are processed
 - [x] Failures do not block other products
-- [ ] Typecheck/lint passes
+- [x] Typecheck/lint passes
 
 ---
 
