@@ -416,6 +416,10 @@ class PriceComparator:
             } for r in current_records
         ])
         
+        # Normalize prices: ensure they are floats and round to 2 decimal places
+        current_df['current_price'] = pd.to_numeric(current_df['current_price'], errors='coerce').round(2)
+        baseline_df['baseline_price'] = pd.to_numeric(baseline_df['baseline_price'], errors='coerce').round(2)
+        
         # Merge with baseline
         comparison = pd.merge(
             baseline_df,
@@ -447,6 +451,9 @@ class PriceComparator:
                 return "UNCHANGED"
         
         comparison['status'] = comparison.apply(get_status, axis=1)
+        
+        # Sort results by product_name for consistency
+        comparison = comparison.sort_values(by='product_name').reset_index(drop=True)
         
         return comparison
     
