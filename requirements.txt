@@ -117,7 +117,6 @@ pyserial==3.5
 python-dateutil==2.9.0.post0
 python-dotenv==1.1.1
 python-magic==0.4.24
-python>=3.12
 pytz==2022.1
 PyYAML==6.0.2
 referencing==0.36.2
