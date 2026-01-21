@@ -64,45 +64,66 @@ class USPSScraper(WebsiteScraper):
     
     def scrape(self) -> List[PriceRecord]:
         """
-        Scrape USPS pricing. 
-        Note: USPS website structure may require API or specific parsing.
-        This is a template - actual implementation needs adaptation to site structure.
+        Scrape USPS pricing from the actual website.
+        Parses the pricing table to extract retail and commercial prices for flat rate boxes.
         """
         records = []
         
         try:
-            # For demonstration, using known January 2026 pricing
-            # In production, would parse from website or API
-            pricing_data = [
-                {"name": "Small Flat Rate Box", "size": "8-11/16 × 5-7/16 × 1-3/4 in", 
-                 "retail": 10.35, "commercial": 8.75},
-                {"name": "Medium Flat Rate Box", "size": "11-1/4 × 8-3/4 × 6 in", 
-                 "retail": 17.45, "commercial": 15.45},
-                {"name": "Large Flat Rate Box", "size": "12 × 12-1/4 × 6 in", 
-                 "retail": 24.75, "commercial": 22.90},
-            ]
+            response = requests.get(self.url, timeout=10)
+            response.raise_for_status()
+            soup = BeautifulSoup(response.content, 'html.parser')
             
-            for item in pricing_data:
-                # Create records for both retail and commercial pricing
-                records.append(PriceRecord(
-                    product_name=f"USPS {item['name']} (Retail)",
-                    size=item['size'],
-                    price=item['retail'],
-                    source="USPS Website",
-                    metadata={"pricing_type": "retail"}
-                ))
-                records.append(PriceRecord(
-                    product_name=f"USPS {item['name']} (Commercial)",
-                    size=item['size'],
-                    price=item['commercial'],
-                    source="USPS Website",
-                    metadata={"pricing_type": "commercial"}
-                ))
+            # Find the pricing table (assuming it's the main table on the page; adjust selector if needed)
+            table = soup.find('table')
+            if not table:
+                print("Error: Pricing table not found on USPS website.")
+                return records
+            
+            rows = table.find_all('tr')
+            for row in rows[1:]:  # Skip header row
+                cells = row.find_all('td')
+                if len(cells) >= 3:
+                    product_text = cells[0].text.strip()
+                    if 'Flat Rate Box' in product_text:
+                        retail_text = cells[1].text.strip()
+                        commercial_text = cells[2].text.strip()
+                        
+                        retail_price = self._extract_price(retail_text)
+                        commercial_price = self._extract_price(commercial_text)
+                        
+                        size = self.size_mapping.get(product_text, {}).get('dimensions', '')
+                        
+                        if retail_price > 0:
+                            records.append(PriceRecord(
+                                product_name=f"USPS {product_text} (Retail)",
+                                size=size,
+                                price=retail_price,
+                                source="USPS Website",
+                                metadata={"pricing_type": "retail"}
+                            ))
+                        if commercial_price > 0:
+                            records.append(PriceRecord(
+                                product_name=f"USPS {product_text} (Commercial)",
+                                size=size,
+                                price=commercial_price,
+                                source="USPS Website",
+                                metadata={"pricing_type": "commercial"}
+                            ))
             
         except Exception as e:
             print(f"Error scraping USPS: {e}")
         
         return records
+    
+    def _extract_price(self, price_text: str) -> float:
+        """Extract numeric price from text"""
+        # Remove currency symbols and commas
+        cleaned = re.sub(r'[^\d.]', '', price_text)
+        try:
+            return float(cleaned)
+        except ValueError:
+            return 0.0
 
 
 class GenericHTMLScraper(WebsiteScraper):
@@ -845,7 +866,7 @@ def main():
     elif selected and selectors:
         print("\nScheduler not started - Google Sheets handler not available.")
         # Still run a test scrape without sheets
-        print("Running test scrape without sheets...")
+        print("Running test scrape...")
         scheduler = ScraperScheduler(usps_scraper, selected, selectors, None, db_handler, notification_handler)
         scheduler.run_scheduled_scrape()
     
