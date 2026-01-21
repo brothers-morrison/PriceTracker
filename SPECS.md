@@ -73,7 +73,7 @@ This feature provides an internal admin tool that enables automated price monito
 **Description:** As an administrator, I want to be notified when prices change so I can take action.
 
 **Acceptance Criteria:**
-- [ ] Notification is sent only when differences are detected
+- [x] Notification is sent only when differences are detected
 - [ ] Notification includes product name, old price, and new price
 - [ ] No notification is sent when no changes occur
 - [ ] Typecheck/lint passes

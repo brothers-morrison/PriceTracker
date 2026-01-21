@@ -493,6 +493,65 @@ class PriceComparator:
         return "\n".join(report)
 
 
+class NotificationHandler:
+    """Handles sending notifications when price changes are detected"""
+    
+    def __init__(self, notification_method: str = 'console', email_config: Optional[Dict] = None):
+        """
+        Args:
+            notification_method: 'console' for printing to console, 'email' for sending email
+            email_config: Dict with email settings if method is 'email' (e.g., {'smtp_server': 'smtp.example.com', 'port': 587, 'username': 'user', 'password': 'pass', 'to': 'admin@example.com'})
+        """
+        self.notification_method = notification_method
+        self.email_config = email_config
+    
+    def notify_if_changes(self, comparison_df: pd.DataFrame):
+        """
+        Send notification only if there are price changes detected.
+        
+        Args:
+            comparison_df: DataFrame from PriceComparator.compare
+        """
+        changed_items = comparison_df[comparison_df['status'].isin(['INCREASED', 'DECREASED', 'NEW', 'REMOVED'])]
+        if changed_items.empty:
+            print("No price changes detected. No notification sent.")
+            return
+        
+        report = PriceComparator.generate_report(comparison_df)
+        
+        if self.notification_method == 'console':
+            print("Notification (Console):")
+            print(report)
+        elif self.notification_method == 'email':
+            self._send_email_notification(report)
+        else:
+            print(f"Unknown notification method: {self.notification_method}")
+    
+    def _send_email_notification(self, report: str):
+        """Send the report via email"""
+        if not self.email_config:
+            print("Email config not provided. Skipping email notification.")
+            return
+        
+        import smtplib
+        from email.mime.text import MIMEText
+        
+        msg = MIMEText(report)
+        msg['Subject'] = 'Price Change Notification'
+        msg['From'] = self.email_config.get('username')
+        msg['To'] = self.email_config.get('to')
+        
+        try:
+            server = smtplib.SMTP(self.email_config['smtp_server'], self.email_config['port'])
+            server.starttls()
+            server.login(self.email_config['username'], self.email_config['password'])
+            server.sendmail(self.email_config['username'], self.email_config['to'], msg.as_string())
+            server.quit()
+            print("Email notification sent successfully.")
+        except Exception as e:
+            print(f"Failed to send email notification: {e}")
+
+
 class ProductSelector:
     """Handles product detection and selection from a website"""
     
@@ -623,12 +682,13 @@ class ProductSelector:
 class ScraperScheduler:
     """Handles scheduling of daily scrapes"""
     
-    def __init__(self, scraper: WebsiteScraper, selected_products: List[str], selectors: Dict[str, Dict[str, str]], sheets_handler: GoogleSheetsHandler, db_handler: DatabaseHandler):
+    def __init__(self, scraper: WebsiteScraper, selected_products: List[str], selectors: Dict[str, Dict[str, str]], sheets_handler: GoogleSheetsHandler, db_handler: DatabaseHandler, notification_handler: NotificationHandler):
         self.scraper = scraper
         self.selected_products = selected_products
         self.selectors = selectors
         self.sheets_handler = sheets_handler
         self.db_handler = db_handler
+        self.notification_handler = notification_handler
     
     def run_scheduled_scrape(self):
         """Run the scrape job at the scheduled time"""
@@ -664,8 +724,8 @@ class ScraperScheduler:
         # Write back to sheets
         self.sheets_handler.write_comparison(comparison)
         
-        # Placeholder for notification (to be implemented in US-006)
-        print("Scrape completed. (Notifications not yet implemented.)")
+        # Send notification only if changes detected
+        self.notification_handler.notify_if_changes(comparison)
     
     def start_scheduler(self):
         """Start the scheduler to run daily at 1:00am"""
@@ -734,6 +794,7 @@ def main():
     # Uncomment and configure when ready to use:
     sheets_handler = None
     db_handler = DatabaseHandler()
+    notification_handler = NotificationHandler(notification_method='console')  # Default to console for demo
     try:
         sheets_handler = GoogleSheetsHandler(
             credentials_file='auth/google-service-account-credentials.json',
@@ -773,7 +834,7 @@ def main():
     
     # Example 5: Start scheduled scraping (for demonstration, run immediately; in production, run as daemon)
     if selected and selectors and sheets_handler:
-        scheduler = ScraperScheduler(usps_scraper, selected, selectors, sheets_handler, db_handler)  # Using USPS as example; adapt for generic
+        scheduler = ScraperScheduler(usps_scraper, selected, selectors, sheets_handler, db_handler, notification_handler)  # Using USPS as example; adapt for generic
         # For testing, run once immediately instead of scheduling
         test_run = input("Run a test scrape now? (y/n): ").strip().lower()
         if test_run == 'y':
