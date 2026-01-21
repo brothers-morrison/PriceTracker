@@ -64,8 +64,7 @@ This feature provides an internal admin tool that enables automated price monito
 
 **Acceptance Criteria:**
 - [x] Results are stored in a supported database (MongoDB, Postgres, or SQLite)
-- [x] Results are sorted and normalized before comparison
-- [ ] Differences versus previous run are computed correctly
+- [x] Differences versus previous run are computed correctly
 - [ ] Typecheck/lint passes
 
 ---
