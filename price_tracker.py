@@ -18,7 +18,7 @@ import gspread.exceptions
 from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd
 import webbrowser
-import schedule
+# import schedule
 import time
 from datetime import datetime
 
