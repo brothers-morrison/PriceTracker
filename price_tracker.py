@@ -194,8 +194,8 @@ class SelectorGenerator:
             soup = BeautifulSoup(response.content, 'html.parser')
             
             # Heuristic: Look for common patterns in HTML
-            # Find potential product containers (divs with product-related classes)
-            product_containers = soup.find_all(['div', 'li', 'article'], class_=lambda c: c and any(word in c.lower() for word in ['product', 'item', 'card']))
+            # Find potential product containers (trs for table rows, as USPS uses tables)
+            product_containers = soup.find_all(['tr'], class_=lambda c: c and any(word in c.lower() for word in ['product', 'item', 'card'])) or soup.find_all('tr')
             
             for product_name in selected_products:
                 # For each selected product, try to find matching elements
@@ -215,7 +215,7 @@ class SelectorGenerator:
     
     def _find_selectors_for_product(self, soup: BeautifulSoup, product_name: str, containers: List) -> Optional[Dict[str, str]]:
         """Find selectors for a specific product"""
-        # Simple heuristic: Look for text matching product name, then find nearby price elements
+        # Simple heuristic: Look for tr containing the product name, then find price in that row
         for container in containers:
             if product_name.lower() in container.get_text().lower():
                 # Found a container with the product name
@@ -224,9 +224,11 @@ class SelectorGenerator:
                 if price_elem:
                     # Generate selector for this price element
                     selector = self._generate_selector(price_elem)
+                    product_elem = container.find(text=re.compile(product_name, re.I))
+                    product_selector = self._generate_selector(product_elem.parent if product_elem else container)
                     return {
                         'container': self._generate_selector(container),
-                        'product_name': self._generate_selector(container.find(text=re.compile(product_name, re.I)).parent if container.find(text=re.compile(product_name, re.I)) else container),
+                        'product_name': product_selector,
                         'price': selector
                     }
         return None
@@ -236,7 +238,7 @@ class SelectorGenerator:
         # Look for elements with price-like text (contains $ or digits)
         for elem in container.find_all(text=re.compile(r'\$?\d+\.?\d*')):
             parent = elem.parent
-            if parent and parent.name in ['span', 'div', 'p', 'strong']:
+            if parent and parent.name in ['td', 'span', 'div', 'p', 'strong']:
                 return parent
         return None
     
@@ -565,9 +567,8 @@ class ProductSelector:
             response = requests.get(url, timeout=10)
             response.raise_for_status()
             soup = BeautifulSoup(response.text, 'html.parser')
-            # Simple heuristic: Look for divs or h2 elements that might contain product info
-            # This is a basic implementation; can be improved with more sophisticated selectors
-            candidates = soup.find_all(['div', 'h2'], class_=lambda c: c and ('product' in c.lower() or 'item' in c.lower())) or soup.find_all('div', attrs={'data-product': True})
+            # Simple heuristic: Look for tds or ths that might contain product info (e.g., for USPS tables)
+            candidates = soup.find_all(['td', 'th'], string=lambda s: s and any(word in s.lower() for word in ['box', 'flat', 'rate']))
             product_list = []
             for candidate in candidates[:10]:  # Limit to first 10 to avoid overwhelming output
                 text = candidate.get_text(strip=True)
