@@ -305,9 +305,13 @@ class GoogleSheetsHandler:
         if not self.sheet:
             self.connect()
         
-        worksheet = self.sheet.worksheet(worksheet_name)
-        data = worksheet.get_all_records()
-        return pd.DataFrame(data)
+        try:
+            worksheet = self.sheet.worksheet(worksheet_name)
+            data = worksheet.get_all_records()
+            return pd.DataFrame(data)
+        except gspread.exceptions.WorksheetNotFound:
+            print(f"Worksheet '{worksheet_name}' not found. Creating empty baseline.")
+            return pd.DataFrame(columns=['product_name', 'size', 'baseline_price'])
     
     def write_comparison(self, comparison_data: pd.DataFrame, 
                         worksheet_name: str = "Comparison"):
@@ -611,26 +615,26 @@ def main():
     
     # Example 3: Compare with baseline (requires Google Sheets setup)
     # Uncomment and configure when ready to use:
-
-    sheets_handler = GoogleSheetsHandler(
-        credentials_file='auth/google-service-account-credentials.json',
-        sheet_url='https://docs.google.com/spreadsheets/d/1GRT_hiUgzu68mKJuCLa5U98333ZCi30fJgu9SnNI87k/edit'
-    )
-    """
-    sheets_handler = GoogleSheetsHandler(
-        credentials_file='path/to/credentials.json',
-        sheet_url='your-google-sheet-url'
-    )
-    """
-
-    baseline_df = sheets_handler.read_baseline()
-    comparison = PriceComparator.compare(current_prices, baseline_df)
-    report = PriceComparator.generate_report(comparison)
-    
-    print("\n" + report)
-    
-    # Write results back to Google Sheets
-    sheets_handler.write_comparison(comparison)
+    try:
+        sheets_handler = GoogleSheetsHandler(
+            credentials_file='auth/google-service-account-credentials.json',
+            sheet_url='https://docs.google.com/spreadsheets/d/1GRT_hiUgzu68mKJuCLa5U98333ZCi30fJgu9SnNI87k/edit'
+        )
+        
+        baseline_df = sheets_handler.read_baseline()
+        comparison = PriceComparator.compare(current_prices, baseline_df)
+        report = PriceComparator.generate_report(comparison)
+        
+        print("\n" + report)
+        
+        # Write results back to Google Sheets
+        sheets_handler.write_comparison(comparison)
+    except FileNotFoundError:
+        print("\nGoogle Sheets credentials file not found. Skipping baseline comparison.")
+        print("To enable this feature, place your credentials at 'auth/google-service-account-credentials.json'")
+    except Exception as e:
+        print(f"\nError with Google Sheets integration: {e}")
+        print("Skipping baseline comparison.")
     
     
     # Example 4: Generic scraper configuration
