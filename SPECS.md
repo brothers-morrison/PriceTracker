@@ -18,10 +18,10 @@ This feature provides an internal admin tool that enables automated price monito
 **Description:** As an administrator, I want to specify a website so the system knows where to discover products.
 
 **Acceptance Criteria:**
-- [x] Admin can input a valid website URL
-- [x] URL is validated for basic reachability
-- [x] Errors are shown for invalid or unreachable URLs
-- [x] Typecheck/lint passes
+- [] Admin can input a valid website URL
+- [] URL is validated for basic reachability
+- [] Errors are shown for invalid or unreachable URLs
+- [] Typecheck/lint passes
 
 ---
 
@@ -29,11 +29,11 @@ This feature provides an internal admin tool that enables automated price monito
 **Description:** As an administrator, I want to select products from the target website so only relevant items are tracked.
 
 **Acceptance Criteria:**
-- [x] System presents a list of detected products or product candidates
-- [x] Admin can select one or more products
-- [x] Selected products are persisted
-- [x] Typecheck/lint passes
-- [x] Verify in browser using dev-browser skill
+- [] System presents a list of detected products or product candidates
+- [] Admin can select one or more products
+- [] Selected products are persisted
+- [] Typecheck/lint passes
+- [] Verify in browser using dev-browser skill
 
 ---
 
@@ -41,10 +41,10 @@ This feature provides an internal admin tool that enables automated price monito
 **Description:** As the system, selector logic should be generated so prices can be scraped reliably.
 
 **Acceptance Criteria:**
-- [x] Selector code is generated per selected product
-- [x] Selectors correctly extract price values in test runs
-- [x] Selector generation failures are explicitly reported
-- [x] Typecheck/lint passes
+- [] Selector code is generated per selected product
+- [] Selectors correctly extract price values in test runs
+- [] Selector generation failures are explicitly reported
+- [] Typecheck/lint passes
 
 ---
 
@@ -52,10 +52,10 @@ This feature provides an internal admin tool that enables automated price monito
 **Description:** As the system, prices should be scraped automatically on a fixed schedule.
 
 **Acceptance Criteria:**
-- [x] Scrape runs automatically at 1:00am server time
-- [x] All selected products are processed
-- [x] Failures do not block other products
-- [x] Typecheck/lint passes
+- [] Scrape runs automatically at 1:00am server time
+- [] All selected products are processed
+- [] Failures do not block other products
+- [] Typecheck/lint passes
 
 ---
 
@@ -63,9 +63,9 @@ This feature provides an internal admin tool that enables automated price monito
 **Description:** As the system, scrape results should be stored and compared so changes can be detected.
 
 **Acceptance Criteria:**
-- [x] Results are stored in a supported database (MongoDB, Postgres, or SQLite)
-- [x] Differences versus previous run are computed correctly
-- [x] Typecheck/lint passes
+- [] Results are stored in a supported database (MongoDB, Postgres, or SQLite)
+- [] Differences versus previous run are computed correctly
+- [] Typecheck/lint passes
 
 ---
 
@@ -73,10 +73,10 @@ This feature provides an internal admin tool that enables automated price monito
 **Description:** As an administrator, I want to be notified when prices change so I can take action.
 
 **Acceptance Criteria:**
-- [x] Notification is sent only when differences are detected
-- [x] Notification includes product name, old price, and new price
-- [x] No notification is sent when no changes occur
-- [x] Typecheck/lint passes
+- [] Notification is sent only when differences are detected
+- [] Notification includes product name, old price, and new price
+- [] No notification is sent when no changes occur
+- [] Typecheck/lint passes
 
 ## 4. Functional Requirements
 
