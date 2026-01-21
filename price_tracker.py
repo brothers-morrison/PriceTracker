@@ -529,6 +529,32 @@ class ProductSelector:
         except Exception as e:
             print(f"Error loading selected products: {e}")
             return []
+    
+    @staticmethod
+    def persist_selectors(selectors: Dict[str, Dict[str, str]], filename: str = 'selectors.json'):
+        """
+        Persist the generated selectors to a JSON file.
+        """
+        try:
+            with open(filename, 'w') as f:
+                json.dump(selectors, f, indent=4)
+            print(f"Selectors persisted to {filename}.")
+        except Exception as e:
+            print(f"Error persisting selectors: {e}")
+    
+    @staticmethod
+    def load_selectors(filename: str = 'selectors.json') -> Dict[str, Dict[str, str]]:
+        """
+        Load persisted selectors from a JSON file.
+        """
+        try:
+            with open(filename, 'r') as f:
+                return json.load(f)
+        except FileNotFoundError:
+            return {}
+        except Exception as e:
+            print(f"Error loading selectors: {e}")
+            return {}
 
 
 class ScraperScheduler:
@@ -545,17 +571,22 @@ class ScraperScheduler:
         print(f"Running scheduled scrape at {datetime.now()}")
         # Load selected products and selectors (assuming persisted)
         selected = ProductSelector.load_selected_products()
+        selectors = ProductSelector.load_selectors()
         if not selected:
             print("No selected products found. Skipping scrape.")
             return
         
-        # For simplicity, assume generic scraper; in production, map to appropriate scraper
         records = []
         for product in selected:
-            if product in self.selectors and "error" not in self.selectors[product]:
-                scraper_url = getattr(self.scraper, 'url', "https://example.com")
-                scraper = GenericHTMLScraper(scraper_url, self.selectors[product])
-                records.extend(scraper.scrape())
+            try:
+                if product in selectors and "error" not in selectors[product]:
+                    scraper = GenericHTMLScraper(self.scraper.url if hasattr(self.scraper, 'url') else "https://example.com", selectors[product])
+                    records.extend(scraper.scrape())
+                else:
+                    print(f"Skipping product '{product}': No valid selectors available.")
+            except Exception as e:
+                print(f"Error scraping product '{product}': {e}")
+                continue
         
         # Compare with baseline
         baseline_df = self.sheets_handler.read_baseline()
@@ -625,6 +656,9 @@ def main():
                 print(f"  {product}: Success - Extracted price ${result['extracted_price']:.2f}")
             else:
                 print(f"  {product}: Failed - {result['error']}")
+        
+        # Persist selectors
+        ProductSelector.persist_selectors(selectors)
     else:
         # Initialize empty list for later use
         selected = []
