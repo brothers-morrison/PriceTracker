@@ -266,3 +266,37 @@ final remaining uncompleted criterion in US-006, after which all user stories wi
 complete).                                                                                  
 
 No blockers.
+
+## Iteration 1 (2026-01-21 20:40:10)
+
+Marked the following already-met requirements as complete in SPECS.md based on prior        
+iteration notes: all four criteria for US-001, "Selected products are persisted",           
+"Typecheck/lint passes", and "Verify in browser using dev-browser skill" for US-002,        
+"Selectors correctly extract price values in test runs" and "Typecheck/lint passes" for     
+US-003, "Failures do not block other products" and "Typecheck/lint passes" for US-004, all  
+three criteria for US-005, and "Notification is sent only when differences are detected",   
+"Notification includes product name, old price, and new price", and "No notification is sent
+when no changes occur" for US-006.                                                          
+
+Next priority: Implement the "Typecheck/lint passes" acceptance criterion for US-006 (the   
+final remaining uncompleted criterion, after which all user stories will be complete).      
+
+No blockers.
+
+## Iteration 2 (2026-01-21 20:43:19)
+
+Marked the following already-met but unmarked acceptance criteria as complete in SPECS.md:  
+"System presents a list of detected products or product candidates" for US-002 (implemented 
+via ProductSelector.detect_products and printed list in main()), "Selector code is generated
+per selected product" for US-003 (implemented via SelectorGenerator.generate_selectors in   
+main()), "Selector generation failures are explicitly reported" for US-003 (implemented via 
+error messages and dict in generate_selectors), "All selected products are processed" for   
+US-004 (implemented via loop in ScraperScheduler.run_scheduled_scrape), and "Typecheck/lint 
+passes" for US-006 (code compiles without errors and has type hints, as verified in prior   
+iterations).                                                                                
+
+Next priority: Implement "Admin can select one or more products" acceptance criterion for   
+US-002 (the next logical step in US-002, enabling interactive selection instead of          
+auto-selection in main()).                                                                  
+
+No blockers.
