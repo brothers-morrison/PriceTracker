@@ -37,7 +37,7 @@ except ImportError:
 import sqlite3
 import os
 import webbrowser
-# import schedule
+import schedule
 import time
 from datetime import datetime
 
@@ -781,12 +781,11 @@ class ScraperScheduler:
     
     def start_scheduler(self):
         """Start the scheduler to run daily at 1:00am"""
-        # schedule.every().day.at("01:00").do(self.run_scheduled_scrape)
+        schedule.every().day.at("01:00").do(self.run_scheduled_scrape)
         print("Scheduler started. Scraping will run daily at 1:00am.")
-        print("Note: schedule library not available - implement scheduling manually")
-        # while True:
-        #     schedule.run_pending()
-        #     time.sleep(60)  # Check every minute
+        while True:
+            schedule.run_pending()
+            time.sleep(60)  # Check every minute
 
 
 def main():
