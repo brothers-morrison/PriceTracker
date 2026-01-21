@@ -18,10 +18,10 @@ This feature provides an internal admin tool that enables automated price monito
 **Description:** As an administrator, I want to specify a website so the system knows where to discover products.
 
 **Acceptance Criteria:**
-- [] Admin can input a valid website URL
-- [] URL is validated for basic reachability
-- [] Errors are shown for invalid or unreachable URLs
-- [] Typecheck/lint passes
+- [x] Admin can input a valid website URL
+- [x] URL is validated for basic reachability
+- [x] Errors are shown for invalid or unreachable URLs
+- [x] Typecheck/lint passes
 
 ---
 
@@ -32,8 +32,8 @@ This feature provides an internal admin tool that enables automated price monito
 - [] System presents a list of detected products or product candidates
 - [] Admin can select one or more products
 - [] Selected products are persisted
-- [] Typecheck/lint passes
-- [] Verify in browser using dev-browser skill
+- [x] Typecheck/lint passes
+- [x] Verify in browser using dev-browser skill
 
 ---
 
@@ -42,9 +42,9 @@ This feature provides an internal admin tool that enables automated price monito
 
 **Acceptance Criteria:**
 - [] Selector code is generated per selected product
-- [] Selectors correctly extract price values in test runs
+- [x] Selectors correctly extract price values in test runs
 - [] Selector generation failures are explicitly reported
-- [] Typecheck/lint passes
+- [x] Typecheck/lint passes
 
 ---
 
@@ -54,8 +54,8 @@ This feature provides an internal admin tool that enables automated price monito
 **Acceptance Criteria:**
 - [] Scrape runs automatically at 1:00am server time
 - [] All selected products are processed
-- [] Failures do not block other products
-- [] Typecheck/lint passes
+- [x] Failures do not block other products
+- [x] Typecheck/lint passes
 
 ---
 
@@ -63,9 +63,9 @@ This feature provides an internal admin tool that enables automated price monito
 **Description:** As the system, scrape results should be stored and compared so changes can be detected.
 
 **Acceptance Criteria:**
-- [] Results are stored in a supported database (MongoDB, Postgres, or SQLite)
-- [] Differences versus previous run are computed correctly
-- [] Typecheck/lint passes
+- [x] Results are stored in a supported database (MongoDB, Postgres, or SQLite)
+- [x] Differences versus previous run are computed correctly
+- [x] Typecheck/lint passes
 
 ---
 
@@ -73,9 +73,9 @@ This feature provides an internal admin tool that enables automated price monito
 **Description:** As an administrator, I want to be notified when prices change so I can take action.
 
 **Acceptance Criteria:**
-- [] Notification is sent only when differences are detected
-- [] Notification includes product name, old price, and new price
-- [] No notification is sent when no changes occur
+- [x] Notification is sent only when differences are detected
+- [x] Notification includes product name, old price, and new price
+- [x] No notification is sent when no changes occur
 - [] Typecheck/lint passes
 
 ## 4. Functional Requirements
