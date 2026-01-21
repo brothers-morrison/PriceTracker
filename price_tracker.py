@@ -22,12 +22,18 @@ except ImportError:
     GSPREAD_AVAILABLE = False
 try:
     from oauth2client.service_account import ServiceAccountCredentials
+    OAUTH2CLIENT_AVAILABLE = True
 except ImportError:
-    os.system('pip install oauth2client')
+    print("Warning: oauth2client not installed. Google Sheets functionality will be limited.")
+    ServiceAccountCredentials = None
+    OAUTH2CLIENT_AVAILABLE = False
 try:
     import pandas as pd
+    PANDAS_AVAILABLE = True
 except ImportError:
-    os.system('pip install oauth2client')
+    print("Warning: pandas not installed. DataFrame functionality will be limited.")
+    pd = None
+    PANDAS_AVAILABLE = False
 import sqlite3
 import os
 import webbrowser
@@ -387,7 +393,7 @@ class GoogleSheetsHandler:
     
     def connect(self):
         """Establish connection to Google Sheets"""
-        if not GSPREAD_AVAILABLE or ServiceAccountCredentials is None:
+        if not GSPREAD_AVAILABLE or not OAUTH2CLIENT_AVAILABLE:
             raise ImportError("gspread or oauth2client library not installed")
         scope = ['https://spreadsheets.com/feeds',
                  'https://www.googleapis.com/auth/drive']
@@ -841,7 +847,7 @@ def main():
     # Example 3: Compare with baseline (requires Google Sheets setup)
     # Uncomment and configure when ready to use:
     sheets_handler = None
-    if GSPREAD_AVAILABLE and ServiceAccountCredentials:
+    if GSPREAD_AVAILABLE and OAUTH2CLIENT_AVAILABLE:
         try:
             sheets_handler = GoogleSheetsHandler(
                 credentials_file='auth/google-service-account-credentials.json',
