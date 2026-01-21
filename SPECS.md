@@ -29,8 +29,8 @@ This feature provides an internal admin tool that enables automated price monito
 **Description:** As an administrator, I want to select products from the target website so only relevant items are tracked.
 
 **Acceptance Criteria:**
-- [] System presents a list of detected products or product candidates
-- [] Admin can select one or more products
+- [x] System presents a list of detected products or product candidates
+- [x] Admin can select one or more products
 - [] Selected products are persisted
 - [x] Typecheck/lint passes
 - [x] Verify in browser using dev-browser skill
@@ -41,9 +41,9 @@ This feature provides an internal admin tool that enables automated price monito
 **Description:** As the system, selector logic should be generated so prices can be scraped reliably.
 
 **Acceptance Criteria:**
-- [] Selector code is generated per selected product
+- [x] Selector code is generated per selected product
 - [x] Selectors correctly extract price values in test runs
-- [] Selector generation failures are explicitly reported
+- [x] Selector generation failures are explicitly reported
 - [x] Typecheck/lint passes
 
 ---
@@ -53,7 +53,7 @@ This feature provides an internal admin tool that enables automated price monito
 
 **Acceptance Criteria:**
 - [] Scrape runs automatically at 1:00am server time
-- [] All selected products are processed
+- [x] All selected products are processed
 - [x] Failures do not block other products
 - [x] Typecheck/lint passes
 
@@ -76,7 +76,7 @@ This feature provides an internal admin tool that enables automated price monito
 - [x] Notification is sent only when differences are detected
 - [x] Notification includes product name, old price, and new price
 - [x] No notification is sent when no changes occur
-- [] Typecheck/lint passes
+- [x] Typecheck/lint passes
 
 ## 4. Functional Requirements
 
