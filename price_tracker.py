@@ -358,7 +358,7 @@ class GoogleSheetsHandler:
     def connect(self):
         """Establish connection to Google Sheets"""
         if ServiceAccountCredentials is None:
-            raise ImportError("oauth2client library not available")
+            raise ImportError("oauth2client library not installed")
         scope = ['https://spreadsheets.com/feeds',
                  'https://www.googleapis.com/auth/drive']
         creds = ServiceAccountCredentials.from_json_keyfile_name(
