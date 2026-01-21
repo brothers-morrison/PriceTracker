@@ -76,7 +76,7 @@ This feature provides an internal admin tool that enables automated price monito
 - [x] Notification is sent only when differences are detected
 - [x] Notification includes product name, old price, and new price
 - [x] No notification is sent when no changes occur
-- [ ] Typecheck/lint passes
+- [x] Typecheck/lint passes
 
 ## 4. Functional Requirements
 
