@@ -13,21 +13,31 @@ from dataclasses import dataclass
 from abc import ABC, abstractmethod
 import requests
 from bs4 import BeautifulSoup
-import gspread
-import gspread.exceptions
+try:
+    import gspread
+    GSPREAD_AVAILABLE = True
+except ImportError:
+    print("Warning: gspread not installed. Google Sheets functionality will be limited.")
+    gspread = None
+    GSPREAD_AVAILABLE = False
 try:
     from oauth2client.service_account import ServiceAccountCredentials
 except ImportError:
     print("Warning: oauth2client not installed. Google Sheets functionality will be limited.")
     ServiceAccountCredentials = None
-import pandas as pd
+try:
+    import pandas as pd
+    PANDAS_AVAILABLE = True
+except ImportError:
+    print("Warning: pandas not installed. DataFrame functionality will be limited.")
+    pd = None
+    PANDAS_AVAILABLE = False
+import sqlite3
+import os
 import webbrowser
 # import schedule
 import time
 from datetime import datetime
-import sqlite3
-import os
-
 
 @dataclass
 class PriceRecord:
@@ -278,7 +288,7 @@ class SelectorGenerator:
             # Fallback: use tag name (less specific)
             return element.name
     
-    def test_selectors(self, selectors: Dict[str, Dict[str, str]]) -> Dict[str, Dict[str, any]]:
+    def test_selectors(self, selectors: Dict[str, Dict[str, any]]) -> Dict[str, Dict[str, any]]:
         """
         Test the generated selectors by performing a scrape and verifying price extraction.
         
@@ -351,6 +361,9 @@ class DatabaseHandler:
     
     def get_latest_results(self) -> pd.DataFrame:
         """Retrieve the latest scrape results for each product (most recent timestamp)"""
+        if not PANDAS_AVAILABLE:
+            print("Pandas not available. Cannot retrieve DataFrame.")
+            return None
         conn = sqlite3.connect(self.db_path)
         query = '''
             SELECT product_name, size, price, source, MAX(timestamp) as timestamp
@@ -378,8 +391,8 @@ class GoogleSheetsHandler:
     
     def connect(self):
         """Establish connection to Google Sheets"""
-        if ServiceAccountCredentials is None:
-            raise ImportError("oauth2client library not installed")
+        if not GSPREAD_AVAILABLE or ServiceAccountCredentials is None:
+            raise ImportError("gspread or oauth2client library not installed")
         scope = ['https://spreadsheets.com/feeds',
                  'https://www.googleapis.com/auth/drive']
         creds = ServiceAccountCredentials.from_json_keyfile_name(
@@ -389,6 +402,9 @@ class GoogleSheetsHandler:
     
     def read_baseline(self, worksheet_name: str = "Baseline") -> pd.DataFrame:
         """Read baseline pricing data from sheet"""
+        if not PANDAS_AVAILABLE:
+            print("Pandas not available. Cannot read DataFrame.")
+            return None
         if not self.sheet:
             self.connect()
         
@@ -403,6 +419,9 @@ class GoogleSheetsHandler:
     def write_comparison(self, comparison_data: pd.DataFrame, 
                         worksheet_name: str = "Comparison"):
         """Write comparison results to sheet"""
+        if not PANDAS_AVAILABLE:
+            print("Pandas not available. Cannot write DataFrame.")
+            return
         if not self.sheet:
             self.connect()
         
@@ -429,6 +448,9 @@ class PriceComparator:
         Returns:
             DataFrame with comparison results including differences
         """
+        if not PANDAS_AVAILABLE:
+            print("Pandas not available. Cannot perform comparison.")
+            return None
         # Convert current records to DataFrame
         current_df = pd.DataFrame([
             {
@@ -483,6 +505,8 @@ class PriceComparator:
     @staticmethod
     def generate_report(comparison_df: pd.DataFrame) -> str:
         """Generate human-readable report of changes"""
+        if not PANDAS_AVAILABLE or comparison_df is None:
+            return "Pandas not available or no comparison data."
         report = ["=== PRICE CHANGE REPORT ===\n"]
         
         # Summary statistics
@@ -535,6 +559,9 @@ class NotificationHandler:
         Args:
             comparison_df: DataFrame from PriceComparator.compare
         """
+        if not PANDAS_AVAILABLE or comparison_df is None:
+            print("Pandas not available or no comparison data. Skipping notification.")
+            return
         changed_items = comparison_df[comparison_df['status'].isin(['INCREASED', 'DECREASED', 'NEW', 'REMOVED'])]
         if changed_items.empty:
             print("No price changes detected. No notification sent.")
@@ -738,13 +765,14 @@ class ScraperScheduler:
         self.db_handler.store_results(records)
         
         # Compare with baseline (now from database)
-        baseline_df = self.db_handler.get_latest_results().rename(columns={'price': 'baseline_price'})
+        baseline_df = self.db_handler.get_latest_results()
         comparison = PriceComparator.compare(records, baseline_df)
         report = PriceComparator.generate_report(comparison)
         print(report)
         
         # Write back to sheets
-        self.sheets_handler.write_comparison(comparison)
+        if self.sheets_handler:
+            self.sheets_handler.write_comparison(comparison)
         
         # Send notification only if changes detected
         self.notification_handler.notify_if_changes(comparison)
@@ -817,29 +845,32 @@ def main():
     # Example 3: Compare with baseline (requires Google Sheets setup)
     # Uncomment and configure when ready to use:
     sheets_handler = None
+    if GSPREAD_AVAILABLE and ServiceAccountCredentials:
+        try:
+            sheets_handler = GoogleSheetsHandler(
+                credentials_file='auth/google-service-account-credentials.json',
+                sheet_url='https://docs.google.com/spreadsheets/d/1GRT_hiUgzu68mKJuCLa5U98333ZCi30fJgu9SnNI87k/edit'
+            )
+            
+            baseline_df = sheets_handler.read_baseline()
+            comparison = PriceComparator.compare(current_prices, baseline_df)
+            report = PriceComparator.generate_report(comparison)
+            
+            print("\n" + report)
+            
+            # Write results back to Google Sheets
+            sheets_handler.write_comparison(comparison)
+        except FileNotFoundError:
+            print("\nGoogle Sheets credentials file not found. Skipping baseline comparison.")
+            print("To enable this feature, place your credentials at 'auth/google-service-account-credentials.json'")
+        except Exception as e:
+            print(f"\nError with Google Sheets integration: {e}")
+            print("Skipping baseline comparison.")
+    else:
+        print("\nGoogle Sheets libraries not available. Skipping baseline comparison.")
+    
     db_handler = DatabaseHandler()
     notification_handler = NotificationHandler(notification_method='console')  # Default to console for demo
-    try:
-        sheets_handler = GoogleSheetsHandler(
-            credentials_file='auth/google-service-account-credentials.json',
-            sheet_url='https://docs.google.com/spreadsheets/d/1GRT_hiUgzu68mKJuCLa5U98333ZCi30fJgu9SnNI87k/edit'
-        )
-        
-        baseline_df = db_handler.get_latest_results().rename(columns={'price': 'baseline_price'})
-        comparison = PriceComparator.compare(current_prices, baseline_df)
-        report = PriceComparator.generate_report(comparison)
-        
-        print("\n" + report)
-        
-        # Write results back to Google Sheets
-        sheets_handler.write_comparison(comparison)
-    except FileNotFoundError:
-        print("\nGoogle Sheets credentials file not found. Skipping baseline comparison.")
-        print("To enable this feature, place your credentials at 'auth/google-service-account-credentials.json'")
-    except Exception as e:
-        print(f"\nError with Google Sheets integration: {e}")
-        print("Skipping baseline comparison.")
-    
     
     # Example 4: Generic scraper configuration
     # Configure for any website by specifying CSS selectors
