@@ -1,0 +1,12 @@
+{
+  "nodes": {
+    "GPT5nano_planner": {
+      "variant_0": {
+        "inputs": {
+          "question": [],
+          "response_format": []
+        }
+      }
+    }
+  }
+}

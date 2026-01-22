@@ -1,0 +1,24 @@
+inputs:
+  question:
+    type: string
+    default: why is the sky blue
+  chat_history:
+    type: list
+outputs:
+  output:
+    type: string
+    reference: ${GPT5nano_planner.output}
+nodes:
+- name: GPT5nano_planner
+  type: custom_llm
+  source:
+    type: package_with_prompt
+    tool: promptflow.tools.llm.llm
+    path: TacticalAgenticAI_Planner.jinja2
+  inputs:
+    connection: will-mkpn7glw-eastus2_project
+    api: chat
+    question: ${inputs.question}
+    response_format:
+      type: text
+    deployment_name: gpt-5-nano
