@@ -4,6 +4,8 @@ from typing import List, Dict, Any
 import json
 import re
 
+DEBUG_VERBOSE=False
+
 question_answering='''
 Please answer the following questions to help us better serve you:
 '''
@@ -75,20 +77,23 @@ def parse_single_line(text):
     open_set = reg_set(r'\(\[\{\:')
     close_set = reg_set(r'\)\[\}')
 
+    
+    cap_name = f"({open_set.neg()}+)"
     space_opt_colon = r'\s*\:?\s*'
-    name_regex = f"({open_set.neg()}+)"
-    colon_regex = space_opt_colon
-    open_bracket_regex = open_set.set()
-    choices_regex = f"({close_set.neg()}+)"
-    close_bracket_regex = close_set.set()
-    reg = name_regex + colon_regex + open_bracket_regex + choices_regex + close_bracket_regex
-    print("Regex chunks:")
-    print(f"Name part: {name_regex}")
-    print(f"Colon part: {colon_regex}")
-    print(f"Open bracket part: {open_bracket_regex}")
-    print(f"Choices part: {choices_regex}")
-    print(f"Close bracket part: {close_bracket_regex}")
-    print(f"Full regex: {reg}")
+
+
+    open = open_set.set()
+    cap_choices = f"({close_set.neg()}+)"
+    close = close_set.set()
+    reg = f'{cap_name}{space_opt_colon}{open}{cap_choices}{close}'
+    if(DEBUG_VERBOSE):
+        print("Regex chunks:")
+        print(f"cap_name: {cap_name}")
+        print(f"space_opt_colon: {space_opt_colon}")
+        print(f"open: {open}")
+        print(f"cap_choices: {cap_choices}")
+        print(f"close: {close}")
+        print(f"Full regex: {reg}")
     match = re.match(reg, text)
     
     if match:
@@ -100,11 +105,13 @@ def parse_single_line(text):
         # EXAMPLES:
         #   Delivery_Format: (live workshop, lecture, async, executive briefing, etc.)
         #   Industry_or_Domain (optional):
-        for g in match.groups():
-            print(g)
+        if(DEBUG_VERBOSE):
+            for g in match.groups():
+                print(g)
+
         name = match.group(1).strip()
         # Remove trailing colon if present
-        name = name.rstrip(':')
+        name = name.strip().rstrip(':')
 
         choices_str = match.group(2)
         choices_str = choices_str.rstrip(':')
@@ -114,15 +121,28 @@ def parse_single_line(text):
         choices_str = choices_str.replace('/', CHOICE_DELIMITER).replace('\\', CHOICE_DELIMITER)
         choices = [choice.strip() for choice in choices_str.split(CHOICE_DELIMITER)]
         
+        special_words=[
+            'optional',
+            'if any',
+            'bullet list',
+            'bullet list of observable skills or knowledge',
+            'minutes'
+        ]
+        for wd in special_words:
+            while wd in choices:
+                choices.remove(wd)
+
         return {
             "name": name,
-            "choices": choices
+            "choices": choices,
+            "default_choice_index" : 0
         }
     else:
         # No parentheses found - just a name
         return {
-            "name": text.strip(),
-            "choices": []
+            "name": text.strip().strip(':'),
+            "choices": [],
+            "default_choice_index" : 0
         }
 
 
@@ -138,7 +158,7 @@ if __name__ == "__main__":
     
     print("=== Multiline Input Test ===")
     print("Input:")
-    print(multiline_input.split('\n'))
+    print(multiline_input)
     print("\nOutput:")
     result = markdown_to_json(multiline_input)
     print(json.dumps(result, indent=2))

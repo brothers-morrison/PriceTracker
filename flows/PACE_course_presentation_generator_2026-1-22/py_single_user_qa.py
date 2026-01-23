@@ -25,7 +25,7 @@ from promptflow.core import tool
 from typing import List, Dict, Any
 
 global FREEFORM_MATCHES 
-FREEFORM_MATCHES = [None, "", " ", "*","FREE", "FREETEXT","FREEFORM", "any", "etc"]
+FREEFORM_MATCHES = [None, "", " ", "*","FREE", "FREETEXT","FREEFORM", "any", "etc", "etc."]
 """
 Look for these specific choice inputs, if any match one of these, then skip validatation on the set.
 """
@@ -60,6 +60,7 @@ def single_question_answer(field_config: Dict[str, Any]) -> Dict[str, Any]:
     """
     name = field_config["name"]
     choices = field_config["choices"]
+    default_choice_index = field_config["default_choice_index"]
     
     # Check if validation should be disabled
     skip_validation = False
@@ -77,9 +78,9 @@ def single_question_answer(field_config: Dict[str, Any]) -> Dict[str, Any]:
     # Format and print the prompt
     choices_str = ", ".join(choices)
     if(skip_validation):
-        prompt = f"{name}: freeform answer\n> "
+        prompt = f"{bcolors.OKBLUE}{name}{bcolors.ENDC}: freeform answer\n> "
     else:
-        prompt = f"{name}: pick one [{choices_str}]\n> "
+        prompt = f"{bcolors.OKGREEN}{name}{bcolors.ENDC}: pick one [{choices_str}]\n> "
     
     while True:
         user_input = input(prompt).strip()
