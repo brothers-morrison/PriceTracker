@@ -5,14 +5,14 @@ inputs:
   markdown_questionnaire:
     type: string
     default: >
-      #TEMPLATE 1: USER-INPUT COLLECTION (FORM-STYLE PROMPT)
+      # PACE TEMPLATE 
 
 
       [COURSE CONTEXT]
 
       - Course_Topic:
 
-      - Target_Audience: (role, seniority, prior knowledge)
+      - Target_Audience -role, seniority, prior knowledge-: 
 
       - Industry_or_Domain (optional):
 
@@ -32,16 +32,16 @@ inputs:
 
       - Total_Duration (minutes):
 
-      - Segment_Length (default: 10 minutes):
+      - Segment_Length (default: 10 mins):
 
-      - Number_of_Segments (optional override):
+      - Number_of_Segments (optional):
 
       - Slide_or_Segment_Constraints: (branding, max slides, etc.)
 
 
       [ENGAGEMENT & ACTIVITIES]
 
-      - Preferred_Activity_Types: (case study, role-play, discussion, reflection, exercise)
+      - Preferred_Activity_Types: (case study, roleplay, discussion, reflection, exercise)
 
       - Group_Size_and_Interaction_Mode: (solo, pairs, small groups, plenary)
 
@@ -78,7 +78,7 @@ inputs:
 outputs:
   results:
     type: string
-    reference: ${Fake_LLM.output}
+    reference: ${GPT5nano_LLM.output}
 nodes:
 - name: py_md_to_js
   type: python
@@ -94,11 +94,24 @@ nodes:
     path: py_iterator.py
   inputs:
     field_configs: ${py_md_to_js.output}
-- name: Fake_LLM
+- name: Pre_LLM_Cache
   type: python
   source:
     type: code
     path: Pre_LLM_cache.py
   inputs:
     input1: ${py_iterator.output}
-  aggregation: true
+  aggregation: false
+- name: GPT5nano_LLM
+  type: custom_llm
+  source:
+    type: package_with_prompt
+    tool: promptflow.tools.llm.llm
+    path: GPT5nano_LLM.jinja2
+  inputs:
+    connection: will-mkpn7glw-eastus2_project
+    api: chat
+    deployment_name: gpt-5-nano
+    response_format:
+      type: text
+    question: ${Pre_LLM_Cache.output}

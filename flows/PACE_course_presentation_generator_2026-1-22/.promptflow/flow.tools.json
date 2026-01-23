@@ -464,6 +464,17 @@
       },
       "source": "Pre_LLM_cache.py",
       "function": "my_python_tool"
+    },
+    "GPT5nano_LLM.jinja2": {
+      "type": "prompt",
+      "inputs": {
+        "question": {
+          "type": [
+            "string"
+          ]
+        }
+      },
+      "source": "GPT5nano_LLM.jinja2"
     }
   }
 }
