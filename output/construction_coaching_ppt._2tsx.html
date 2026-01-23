@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Build Better Teams: Coaching Workshop</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #1a1a1a; overflow: hidden; }
+        .presentation { width: 100vw; height: 100vh; position: relative; }
+        .slide { width: 100%; height: 100%; position: absolute; top: 0; left: 0; display: none; padding: 60px 80px; background: white; overflow-y: auto; }
+        .slide.active { display: flex; flex-direction: column; }
+        .slide.title-slide { background: linear-gradient(135deg, #0033A0 0%, #001f5f 100%); color: white; justify-content: center; align-items: center; text-align: center; }
+        .slide.title-slide h1 { font-size: 3em; margin-bottom: 30px; font-weight: 700; line-height: 1.2; max-width: 1100px; }
+        .slide.title-slide .subtitle { font-size: 1.5em; margin-bottom: 60px; }
+        .slide.title-slide .footer { position: absolute; bottom: 40px; font-size: 1.1em; }
+        .orange-bar { position: absolute; left: 0; top: 0; width: 20px; height: 100%; background: #D64309; }
+        .slide h2 { color: #0033A0; font-size: 2.2em; margin-bottom: 30px; margin-left: 40px; font-weight: 700; }
+        .section-header { background: #0033A0; color: white; padding: 10px 40px; margin: -60px -80px 30px -60px; font-size: 1.1em; font-weight: 600; }
+        .content { margin-left: 40px; font-size: 1.2em; line-height: 1.7; color: #333; }
+        .bullet-point { margin: 15px 0; padding-left: 35px; position: relative; }
+        .bullet-point::before { content: "●"; color: #D64309; position: absolute; left: 0; font-size: 1.2em; }
+        .activity-box { background: #FFE5D9; border: 3px solid #D64309; border-radius: 10px; padding: 25px; margin: 20px 40px; }
+        .activity-box h3 { color: #D64309; font-size: 1.6em; margin-bottom: 15px; }
+        .activity-box p { color: #0033A0; font-size: 1.1em; line-height: 1.5; margin: 8px 0; }
+        .output-box { background: white; border: 2px solid #0033A0; border-radius: 8px; padding: 15px; margin-top: 15px; }
+        .output-box strong { color: #D64309; }
+        .stat-box { background: #0033A0; color: white; padding: 25px; border-radius: 10px; text-align: center; font-size: 1.4em; margin: 25px 40px; font-weight: 600; }
+        .info-box { background: #F5F5F5; border-left: 4px solid #D64309; padding: 20px; margin: 15px 40px; border-radius: 4px; }
+        .info-box h3 { color: #D64309; font-size: 1.4em; margin-bottom: 12px; }
+        .info-box p { line-height: 1.6; }
+        .process-flow { display: flex; justify-content: space-between; align-items: center; margin: 30px 40px; gap: 15px; flex-wrap: wrap; }
+        .process-step { flex: 1; min-width: 150px; background: #E6F0FF; border: 3px solid #0033A0; border-radius: 10px; padding: 20px; text-align: center; }
+        .process-step h4 { color: #0033A0; font-size: 1.3em; margin-bottom: 8px; font-weight: 700; }
+        .arrow { font-size: 1.8em; color: #D64309; font-weight: 700; }
+        .nav-controls { position: fixed; bottom: 25px; right: 25px; display: flex; gap: 12px; z-index: 1000; }
+        .nav-btn { background: #0033A0; color: white; border: none; padding: 12px 25px; font-size: 1em; border-radius: 6px; cursor: pointer; font-weight: 600; transition: all 0.3s; }
+        .nav-btn:hover { background: #D64309; }
+        .nav-btn:disabled { background: #ccc; cursor: not-allowed; }
+        .slide-counter { position: fixed; bottom: 25px; left: 25px; background: rgba(0, 51, 160, 0.9); color: white; padding: 8px 18px; border-radius: 18px; font-size: 1em; z-index: 1000; }
+        .numbered-list { margin: 15px 40px; counter-reset: item; list-style: none; }
+        .numbered-list li { margin: 12px 0; padding-left: 35px; position: relative; font-size: 1.1em; line-height: 1.6; counter-increment: item; }
+        .numbered-list li::before { content: counter(item); position: absolute; left: 0; background: #0033A0; color: white; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9em; }
+        .reflection-box { background: #F5F5F5; border: 3px solid #D64309; border-radius: 10px; padding: 25px; margin: 25px 40px; font-style: italic; }
+        .reflection-box p { color: #D64309; font-size: 1.4em; text-align: center; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <div class="presentation">
+        <div class="slide title-slide active">
+            <h1>Build Better Teams: Coaching and Team Development for Construction Managers</h1>
+            <p class="subtitle">A 120-Minute Workshop for Middle Managers</p>
+            <p class="footer">Boise State University PACE</p>
+        </div>
+
+        <div class="slide">
+            <div class="orange-bar"></div>
+            <h2>Learning Approach</h2>
+            <div class="content">
+                <div class="bullet-point">Mixed teaching: micro-lectures, discussions, templates</div>
+                <div class="bullet-point">Construction-focused scenarios</div>
+                <div class="bullet-point">Practical, take-home tools</div>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="orange-bar"></div>
+            <h2>The Cost of Miscommunication</h2>
+            <div class="content">
+                <p style="margin: 20px 0;">Small miscommunications cascade into:</p>
+                <div class="bullet-point">Costly delays</div>
+                <div class="bullet-point">Expensive rework</div>
+                <div class="bullet-point">Safety risks</div>
+            </div>
+            <div class="reflection-box">
+                <p>"What's one coaching moment you wish you could have handled differently?"</p>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="orange-bar"></div>
+            <h2>Why This Matters</h2>
+            <div class="stat-box">Teams that practice structured coaching report higher reliability and fewer rework events</div>
+            <div class="activity-box">
+                <h3>Activity: Think-Pair-Share</h3>
+                <p>2 minutes: Reflect individually, then share</p>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="orange-bar"></div>
+            <h2>Learning Outcomes</h2>
+            <ol class="numbered-list">
+                <li>Conduct structured coaching using a 4-step model</li>
+                <li>Lead 15-minute daily team huddles</li>
+                <li>Map team roles and identify misalignments</li>
+                <li>Create a 90-day action plan</li>
+            </ol>
+        </div>
+
+        <div class="slide">
+            <div class="section-header">Block 1: Coaching Mindset (10 min)</div>
+            <div class="orange-bar"></div>
+            <h2>Coaching Mindset</h2>
+            <div class="content">
+                <p style="font-weight: 600; margin-bottom: 15px;">Coaching supports:</p>
+                <div class="bullet-point">On-site safety</div>
+                <div class="bullet-point">Schedule adherence</div>
+                <div class="bullet-point">Quality outcomes</div>
+            </div>
+            <div class="info-box">
+                <h3>Adult Learning Principles</h3>
+                <p>Self-direction • Relevance • Practical application</p>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="orange-bar"></div>
+            <h2>Activity: Coaching Moments</h2>
+            <div class="activity-box">
+                <h3>Think-Pair-Share</h3>
+                <p>Identify a coaching moment you could improve</p>
+                <p><strong>Step 1:</strong> Individual reflection (1 min)</p>
+                <p><strong>Step 2:</strong> Share in small groups</p>
+                <div class="output-box"><strong>Output:</strong> One coaching question for next time</div>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="section-header">Block 2: 4-Step Model (10 min)</div>
+            <div class="orange-bar"></div>
+            <h2>The 4-Step Coaching Model</h2>
+            <div class="process-flow">
+                <div class="process-step"><h4>1. ASK</h4><p>Gather facts</p></div>
+                <div class="arrow">→</div>
+                <div class="process-step"><h4>2. REFLECT</h4><p>Explore options</p></div>
+                <div class="arrow">→</div>
+                <div class="process-step"><h4>3. DECIDE</h4><p>Set SMART goal</p></div>
+                <div class="arrow">→</div>
+                <div class="process-step"><h4>4. COMMIT</h4><p>Define actions</p></div>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="orange-bar"></div>
+            <h2>Activity: Practice 4-Step Model</h2>
+            <div class="activity-box">
+                <h3>Coaching Practice</h3>
+                <p>Pair up: supervisor and direct report</p>
+                <p>Scenario: Missed delivery window</p>
+                <p>Time: 8 minutes</p>
+                <div class="output-box"><strong>Deliverable:</strong> 1-page coaching note</div>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="section-header">Block 3: Demonstration (10 min)</div>
+            <div class="orange-bar"></div>
+            <h2>Live Coaching Demo</h2>
+            <div class="content">
+                <p style="font-weight: 600; margin-bottom: 15px;">Watch for:</p>
+                <div class="bullet-point">Active listening and rephrasing</div>
+                <div class="bullet-point">Surfacing options</div>
+                <div class="bullet-point">Concrete commitments</div>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="orange-bar"></div>
+            <h2>Activity: Role-Play Rotation</h2>
+            <div class="activity-box">
+                <h3>Switch Roles</h3>
+                <p>Round 1: Partner A coaches B (5 min)</p>
+                <p>Round 2: Switch roles (5 min)</p>
+                <div class="output-box"><strong>Outputs:</strong> 2 scripts, SMART goals, actions</div>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="section-header">Block 4: Psychological Safety (10 min)</div>
+            <div class="orange-bar"></div>
+            <h2>Psychological Safety</h2>
+            <div class="info-box" style="background: #E6F0FF; border-color: #0033A0;">
+                <h3>Definition</h3>
+                <p>A climate where people feel safe to take risks and speak up</p>
+            </div>
+            <div class="info-box">
+                <h3>3 Practical Cues</h3>
+                <p>1. PAUSE before deciding<br>2. INVITE input<br>3. APPRECIATE contributions</p>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="orange-bar"></div>
+            <h2>Activity: Micro-Trust Exercise</h2>
+            <div class="activity-box">
+                <h3>Practice Inclusive Behaviors</h3>
+                <p>"I'll pause and ask for your input"</p>
+                <p>"What concerns do you have?"</p>
+                <p>"Thank you for raising that"</p>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="section-header">Block 5: Daily Huddles (10 min)</div>
+            <div class="orange-bar"></div>
+            <h2>15-Minute Daily Huddles</h2>
+            <div class="info-box">
+                <h3>6-Part Template</h3>
+                <p>1. START (1 min)<br>2. PRIORITIES (3 min)<br>3. RISKS (4 min)<br>4. OWNERS (3 min)<br>5. NEXT STEPS (3 min)<br>6. CLOSE (1 min)</p>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="orange-bar"></div>
+            <h2>Activity: Design Your Huddle</h2>
+            <div class="activity-box">
+                <h3>Create Huddle Agenda</h3>
+                <p>Top 3 priorities for tomorrow</p>
+                <p>3 potential risks</p>
+                <p>Assign owners</p>
+                <div class="output-box"><strong>Deliverable:</strong> One-page template</div>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="section-header">Block 6: Team Health (10 min)</div>
+            <div class="orange-bar"></div>
+            <h2>Team Health Check</h2>
+            <div class="info-box">
+                <h3>4 Dimensions</h3>
+                <p>Clarity • Accountability • Collaboration • Trust</p>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="orange-bar"></div>
+            <h2>Activity: Team Health Check</h2>
+            <div class="activity-box">
+                <h3>Assessment</h3>
+                <p>Rate your team (1-5 scale)</p>
+                <p>Identify ONE misalignment</p>
+                <div class="output-box"><strong>Outputs:</strong> Template + 2 actions</div>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="section-header">Block 7: Performance Coaching (10 min)</div>
+            <div class="orange-bar"></div>
+            <h2>Performance & Safety</h2>
+            <div class="info-box">
+                <h3>5-Step Template</h3>
+                <p>1. State observation<br>2. Explain impact<br>3. Ask perspective<br>4. Agree actions<br>5. Set check-in</p>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="orange-bar"></div>
+            <h2>Activity: Performance Role-Play</h2>
+            <div class="activity-box">
+                <h3>Safety-Critical Scenario</h3>
+                <p>Work quality slipping with safety implications</p>
+                <p>Time: 6 minutes</p>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="section-header">Block 8: Conflict Resolution (10 min)</div>
+            <div class="orange-bar"></div>
+            <h2>Decision-Making & Conflict</h2>
+            <div class="info-box">
+                <h3>Key Techniques</h3>
+                <p>Ask open questions • Acknowledge constraints • Guide to shared decision</p>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="orange-bar"></div>
+            <h2>Activity: Conflict Role-Play</h2>
+            <div class="activity-box">
+                <h3>Resource Allocation Conflict</h3>
+                <p>Groups of 3: Coach + 2 team members</p>
+                <p>Time: 8 minutes</p>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="section-header">Block 9: Integration (10 min)</div>
+            <div class="orange-bar"></div>
+            <h2>Project Lifecycle Integration</h2>
+            <div class="info-box">
+                <h3>Key Moments</h3>
+                <p>Kickoff • Milestones • Execution • Post-Mortem</p>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="orange-bar"></div>
+            <h2>Activity: Integration Plan</h2>
+            <div class="activity-box">
+                <h3>Action Planning</h3>
+                <p>Draft 1-2 concrete steps</p>
+                <div class="output-box"><strong>Outputs:</strong> 3 actions, owners, metrics</div>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="section-header">Block 10: 90-Day Plan (10 min)</div>
+            <div class="orange-bar"></div>
+            <h2>90-Day Action Planning</h2>
+            <div class="content">
+                <div class="bullet-point">90 days: manageable timeframe</div>
+                <div class="bullet-point">Weekly micro-actions</div>
+                <div class="bullet-point">Monthly reviews</div>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="orange-bar"></div>
+            <h2>Activity: Personal 90-Day Plan</h2>
+            <div class="activity-box">
+                <h3>Create Your Plan</h3>
+                <p>3 specific actions</p>
+                <p>Target dates and metrics</p>
+                <p>Review cadence</p>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="orange-bar"></div>
+            <h2>Key Takeaways</h2>
+            <div class="content">
+                <div class="bullet-point">4-step coaching conversations</div>
+                <div class="bullet-point">Daily huddles</div>
+                <div class="bullet-point">Team health assessments</div>
+                <div class="bullet-point">90-day implementation</div>
+            </div>
+            <div class="stat-box">Small coaching moments create big improvements</div>
+        </div>
+
+        <div class="slide">
+            <div class="section-header">Takeaway Templates</div>
+            <div class="orange-bar"></div>
+            <h2>Template: Coaching Conversation</h2>
+            <div class="info-box">
+                <p><strong>Issue:</strong> _______________</p>
+                <p><strong>ASK:</strong> What happened?</p>
+                <p><strong>REFLECT:</strong> What options?</p>
+                <p><strong>DECIDE:</strong> SMART goal?</p>
+                <p><strong>COMMIT:</strong> Next steps?</p>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="orange-bar"></div>
+            <h2>Template: Team Health Check</h2>
+            <div class="info-box">
+                <p><strong>Clarity:</strong> _____</p>
+                <p><strong>Accountability:</strong> _____</p>
+                <p><strong>Collaboration:</strong> _____</p>
+                <p><strong>Trust:</strong> _____</p>
+                <p>Rate 1-5, identify actions</p>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="orange-bar"></div>
+            <h2>Template: 90-Day Plan</h2>
+            <div class="info-box">
+                <p><strong>Action 1:</strong> _______________</p>
+                <p><strong>Owner:</strong> _______________</p>
+                <p><strong>Date:</strong> _______________</p>
+                <p><strong>Metric:</strong> _______________</p>
+                <p>(Repeat for Actions 2 & 3)</p>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="orange-bar"></div>
+            <h2>References</h2>
+            <div class="content" style="font-size: 1em; line-height: 1.8;">
+                <p style="margin: 20px 0;">Knowles, M. S., et al. (2015). <em>The Adult Learner</em> (8th ed.). Elsevier.</p>
+                <p style="margin: 20px 0;">Whitmore, J. (2017). <em>Coaching for Performance.</em> Nicholas Brealey.</p>
+                <p style="margin: 20px 0;">Edmondson, A. C. (1999). Psychological Safety. <em>Admin Science Quarterly, 44</em>(2), 350-383.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide-counter"><span id="current-slide">1</span> / <span id="total-slides">30</span></div>
+    <div class="nav-controls">
+        <button class="nav-btn" id="prev-btn">← Previous</button>
+        <button class="nav-btn" id="next-btn">Next →</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const currentSlideSpan = document.getElementById('current-slide');
+        document.getElementById('total-slides').textContent = totalSlides;
+
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (n + totalSlides) % totalSlides;
+            slides[currentSlide].classList.add('active');
+            currentSlideSpan.textContent = currentSlide + 1;
+            prevBtn.disabled = currentSlide === 0;
+            nextBtn.disabled = currentSlide === totalSlides - 1;
+        }
+
+        prevBtn.addEventListener('click', () => showSlide(currentSlide - 1));
+        nextBtn.addEventListener('click', () => showSlide(currentSlide + 1));
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') showSlide(currentSlide - 1);
+            if (e.key === 'ArrowRight') showSlide(currentSlide + 1);
+        });
+
+        showSlide(0);
+    </script>
+</body>
+</html>

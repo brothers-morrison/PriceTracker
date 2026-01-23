@@ -417,7 +417,7 @@
     "py_iterator.py": {
       "type": "python",
       "inputs": {
-        "field_configs": {
+        "question_obj_json": {
           "type": [
             "object"
           ]
@@ -425,7 +425,7 @@
       },
       "description": "Iterate through each field config and collect answers.\n\nArgs:\n    field_configs: List of field configuration dicts\n    \nReturns:\n    List of user answers",
       "source": "py_iterator.py",
-      "function": "iterate_questions"
+      "function": "iterate_questions_to_answers"
     },
     "py_md_to_json.py": {
       "type": "python",
@@ -460,6 +460,12 @@
           "type": [
             "list"
           ]
+        },
+        "cache_dir": {
+          "type": [
+            "string"
+          ],
+          "default": "cache"
         }
       },
       "source": "Pre_LLM_cache.py",
@@ -468,7 +474,7 @@
     "GPT5nano_LLM.jinja2": {
       "type": "prompt",
       "inputs": {
-        "question": {
+        "input": {
           "type": [
             "string"
           ]
@@ -479,7 +485,7 @@
     "brand_and_generate_ppt.jinja2": {
       "type": "prompt",
       "inputs": {
-        "text": {
+        "input": {
           "type": [
             "string"
           ]

@@ -95,15 +95,20 @@ nodes:
   source:
     type: code
     path: py_iterator.py
-  inputs:
-    field_configs: ${py_md_to_js.output}
-- name: Pre_LLM_Cache
+  inputs: {}
+- name: brand_and_generate_ppt
+  type: prompt
+  source:
+    type: code
+    path: brand_and_generate_ppt.jinja2
+  inputs: {}
+- name: Cache_to_Filesystem
   type: python
   source:
     type: code
     path: Pre_LLM_cache.py
   inputs:
-    input1: ${py_iterator.output}
+    input1: ${brand_and_generate_ppt.output}
   aggregation: false
 - name: GPT5nano_LLM
   type: custom_llm
@@ -117,10 +122,3 @@ nodes:
     deployment_name: gpt-5-nano
     response_format:
       type: text
-    question: ${Pre_LLM_Cache.output}
-- name: brand_and_generate_ppt
-  type: prompt
-  source:
-    type: code
-    path: brand_and_generate_ppt.jinja2
-  inputs: {}
