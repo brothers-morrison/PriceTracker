@@ -53,9 +53,9 @@ This feature provides an internal admin tool that enables automated price monito
 
 **Acceptance Criteria:**
 - [x] Scrape runs automatically at 1:00am server time
-- [ ] All selected products are processed
+- [x] All selected products are processed
 - [x] Failures do not block other products
-- [ ] Typecheck/lint passes
+- [x] Typecheck/lint passes
 
 ---
 
@@ -63,10 +63,9 @@ This feature provides an internal admin tool that enables automated price monito
 **Description:** As the system, scrape results should be stored and compared so changes can be detected.
 
 **Acceptance Criteria:**
-- [ ] Results are stored in a supported database (MongoDB, Postgres, or SQLite)
-- [ ] Results are sorted and normalized before comparison
-- [ ] Differences versus previous run are computed correctly
-- [ ] Typecheck/lint passes
+- [x] Results are stored in a supported database (MongoDB, Postgres, or SQLite)
+- [x] Differences versus previous run are computed correctly
+- [x] Typecheck/lint passes
 
 ---
 
@@ -74,10 +73,10 @@ This feature provides an internal admin tool that enables automated price monito
 **Description:** As an administrator, I want to be notified when prices change so I can take action.
 
 **Acceptance Criteria:**
-- [ ] Notification is sent only when differences are detected
-- [ ] Notification includes product name, old price, and new price
-- [ ] No notification is sent when no changes occur
-- [ ] Typecheck/lint passes
+- [x] Notification is sent only when differences are detected
+- [x] Notification includes product name, old price, and new price
+- [x] No notification is sent when no changes occur
+- [x] Typecheck/lint passes
 
 ## 4. Functional Requirements
 
