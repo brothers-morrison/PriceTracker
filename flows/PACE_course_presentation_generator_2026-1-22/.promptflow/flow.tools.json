@@ -452,6 +452,18 @@
       "description": "Convert markdown list items to JSON objects.\n\nArgs:\n    markdown_text (str): Single line or multiline markdown list items\n    \nReturns:\n    list or dict: List of JSON objects if multiline, single dict if single line\n    \nExample:\n    >>> markdown_to_json(\"- Target_Audience (role, seniority, prior knowledge):\")\n    {'name': 'Target_Audience', 'choices': ['role', 'seniority', 'prior knowledge']}",
       "source": "01_py_md_to_json.py",
       "function": "markdown_to_json"
+    },
+    "Pre_LLM_cache.py": {
+      "type": "python",
+      "inputs": {
+        "input1": {
+          "type": [
+            "string"
+          ]
+        }
+      },
+      "source": "Pre_LLM_cache.py",
+      "function": "my_python_tool"
     }
   }
 }
