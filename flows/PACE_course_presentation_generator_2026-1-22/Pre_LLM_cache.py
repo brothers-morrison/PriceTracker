@@ -33,19 +33,17 @@ Using the following inputs:
 # Adding type to arguments and return value will help the system show the types properly
 # Please update the function name/signature per need
 @tool
-def my_python_tool(input1: str) -> str:
-    result = prompt.replace('{{prompt_template_form}}', input1)
-    
-    # Parse title from input1
-    lines = input1.strip().split('\n')
-    if lines:
-        first_line = lines[0].strip()
-        if first_line.startswith('# '):
-            title = first_line[2:].strip()
-        else:
-            title = first_line
-    else:
-        title = "untitled"
+def my_python_tool(input1: list) -> str:
+    # Format the list of answers into a string
+    formatted_input = "\n".join([f"- {item['name']}: {item['answer']}" for item in input1])
+    result = prompt.replace('{{prompt_template_form}}', formatted_input)
+
+    # Parse title from the answers, e.g., from Course_Topic
+    title = "untitled"
+    for item in input1:
+        if item['name'] == 'Course_Topic':
+            title = item['answer']
+            break
     
     # Sanitize title for filename
     title = re.sub(r'[^\w\-_]', '_', title).replace(' ', '_')

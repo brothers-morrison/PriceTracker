@@ -458,7 +458,7 @@
       "inputs": {
         "input1": {
           "type": [
-            "string"
+            "list"
           ]
         }
       },
@@ -475,6 +475,17 @@
         }
       },
       "source": "GPT5nano_LLM.jinja2"
+    },
+    "brand_and_generate_ppt.jinja2": {
+      "type": "prompt",
+      "inputs": {
+        "text": {
+          "type": [
+            "string"
+          ]
+        }
+      },
+      "source": "brand_and_generate_ppt.jinja2"
     }
   }
 }

@@ -126,7 +126,8 @@ def parse_single_line(text):
             'if any',
             'bullet list',
             'bullet list of observable skills or knowledge',
-            'minutes'
+            'minutes',
+            'default: 10 mins'
         ]
         for wd in special_words:
             while wd in choices:

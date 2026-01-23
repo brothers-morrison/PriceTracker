@@ -39,6 +39,9 @@ inputs:
       - Slide_or_Segment_Constraints: (branding, max slides, etc.)
 
 
+      [Session environment] - Environment: [Classroom, shop floor, training room, virtual] - Tables available for group work: [yes, no]
+
+
       [ENGAGEMENT & ACTIVITIES]
 
       - Preferred_Activity_Types: (case study, roleplay, discussion, reflection, exercise)
@@ -115,3 +118,9 @@ nodes:
     response_format:
       type: text
     question: ${Pre_LLM_Cache.output}
+- name: brand_and_generate_ppt
+  type: prompt
+  source:
+    type: code
+    path: brand_and_generate_ppt.jinja2
+  inputs: {}
